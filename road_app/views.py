@@ -5,12 +5,13 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from  django.contrib.auth.decorators import login_required
 
 from .models import RoadDetection
 from .tasks import run_prediction
 from .utils import SUPPORTED_EXTENSIONS
 
-
+@login_required
 @require_http_methods(["GET", "POST"])
 def upload_page(request):
     if request.method == "GET":

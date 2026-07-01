@@ -3,14 +3,15 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
+# pyrefly: ignore [missing-import]
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from django.contrib.auth.decorators  import  login_required
 from .models import TreeDetection
 from .tasks import run_prediction
 from .utils import SUPPORTED_EXTENSIONS
 
-
+@login_required
 @require_http_methods(["GET", "POST"])
 def upload_page(request):
     if request.method == "GET":

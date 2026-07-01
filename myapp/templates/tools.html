@@ -2,24 +2,13 @@
 {% load static %}
 {% block content %}
 <style>
-  :root {
-    --bg: #020408;
-    --cyan: #00f5ff;
-    --gold: #ffd700;
-    --purple: #7b2fff;
-    --green: #00ff88;
-    --text: #e0f0ff;
-    --muted: #4a6a8a;
-    --glass: rgba(0, 245, 255, 0.05);
-    --glass-border: rgba(0, 245, 255, 0.15);
-  }
-
   .tools-container {
     max-width: 1300px;
     margin: 0 auto;
     padding: 100px 40px;
     position: relative;
     z-index: 1;
+    font-family: 'Inter', sans-serif;
   }
 
   .tools-header {
@@ -28,11 +17,12 @@
   }
 
   .tools-header h1 {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: clamp(36px, 6vw, 56px);
-    font-weight: 900;
-    color: var(--text);
+    font-weight: 800;
+    color: var(--primary);
     margin-bottom: 16px;
+    letter-spacing: -1.5px;
   }
 
   .tools-header p {
@@ -119,10 +109,10 @@
   }
 
   .tool-name {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 20px;
     font-weight: 700;
-    color: var(--text);
+    color: var(--primary);
     margin-bottom: 12px;
     text-transform: capitalize;
   }
@@ -139,11 +129,11 @@
     min-height: 50px;
     border: 0;
     border-radius: 8px;
-    color: #020408;
-    background: var(--cyan);
-    font-family: 'Orbitron', monospace;
-    font-weight: 800;
-    letter-spacing: 2px;
+    color: #ffffff;
+    background: var(--primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
     font-size: 12px;
     cursor: pointer;
@@ -156,27 +146,13 @@
     gap: 10px;
     text-decoration: none;
     width: 100%;
-  }
-
-  .tool-button::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transform: translateX(-100%) rotate(45deg);
-    transition: transform 0.5s;
+    box-shadow: 0 4px 10px rgba(10, 34, 64, 0.15);
   }
 
   .tool-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 245, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
-  }
-
-  .tool-button:hover::before {
-    transform: translateX(100%) rotate(45deg);
+    box-shadow: 0 6px 20px rgba(10, 34, 64, 0.25);
+    background: #14355a;
   }
 
   .tool-button-icon {
@@ -248,7 +224,7 @@
     </div>
     <div class="tool-card">
       <div class="tool-icon">🌳</div>
-      <h2 class="tool-name">Tree Detection</h2>
+      <h2 class="tool-name">Tree and Vegetation Detection</h2>
       <p class="tool-desc">Identify tree crowns, vegetation coverage, and calculate detailed canopy area statistics and GIS vectors.</p>
       <a href="{% url 'tree_home' %}" class="tool-button">
         <span class="tool-button-icon">▶</span>

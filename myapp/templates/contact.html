@@ -3,24 +3,13 @@
 
 {% block content %}
 <style>
-  :root {
-    --bg: #020408;
-    --cyan: #00f5ff;
-    --gold: #ffd700;
-    --purple: #7b2fff;
-    --green: #00ff88;
-    --text: #e0f0ff;
-    --muted: #4a6a8a;
-    --glass: rgba(0,245,255,0.05);
-    --glass-border: rgba(0,245,255,0.15);
-  }
-
   .contact-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 100px 40px;
     position: relative;
     z-index: 1;
+    font-family: 'Inter', sans-serif;
   }
 
   .contact-header {
@@ -29,11 +18,12 @@
   }
 
   .contact-header h1 {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: clamp(36px, 6vw, 56px);
-    font-weight: 900;
-    color: var(--text);
+    font-weight: 800;
+    color: var(--primary);
     margin-bottom: 16px;
+    letter-spacing: -1.5px;
   }
 
   .contact-header p {
@@ -66,11 +56,9 @@
 
   .form-label {
     display: block;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
     color: var(--text);
     margin-bottom: 8px;
   }
@@ -79,11 +67,11 @@
     min-height: 48px;
     width: 100%;
     padding: 12px 16px;
-    background: rgba(0, 245, 255, 0.04);
-    border: 1px solid rgba(0, 245, 255, 0.18);
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
     color: var(--text) !important;
-    font-family: 'Exo 2', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     transition: all 0.3s;
   }
@@ -102,25 +90,25 @@
   textarea:-webkit-autofill,
   textarea:-webkit-autofill:hover,
   textarea:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px rgba(0, 245, 255, 0.04) inset !important;
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
     -webkit-text-fill-color: var(--text) !important;
   }
 
   .form-control::placeholder {
-    color: rgba(224, 240, 255, 0.3) !important;
+    color: #94a3b8 !important;
   }
 
   .form-control:focus {
     outline: none;
-    background: rgba(0, 245, 255, 0.08);
-    border-color: var(--cyan);
-    box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1);
+    background: #ffffff;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(10, 34, 64, 0.08);
   }
 
   textarea.form-control {
     min-height: 140px;
     resize: vertical;
-    font-family: 'Exo 2', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   .btn-submit {
@@ -128,38 +116,24 @@
     width: 100%;
     border: 0;
     border-radius: 8px;
-    background: var(--cyan);
-    color: #020408;
-    font-family: 'Orbitron', monospace;
-    font-weight: 800;
-    letter-spacing: 2px;
+    background: var(--primary);
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     position: relative;
     overflow: hidden;
     transition: all 0.3s;
-  }
-
-  .btn-submit::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-    transform: translateX(-100%) rotate(45deg);
-    transition: transform 0.5s;
+    box-shadow: 0 4px 12px rgba(10, 34, 64, 0.15);
   }
 
   .btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0,245,255,0.5);
-  }
-
-  .btn-submit:hover::before {
-    transform: translateX(100%) rotate(45deg);
+    box-shadow: 0 6px 20px rgba(10, 34, 64, 0.25);
+    background: #14355a;
   }
 
   /* ── CONTACT INFO ── */
@@ -178,15 +152,15 @@
   }
 
   .info-card:hover {
-    border-color: rgba(0,245,255,0.35);
-    box-shadow: 0 12px 40px rgba(0,245,255,0.1);
+    border-color: rgba(10, 34, 64, 0.15);
+    box-shadow: 0 12px 40px rgba(10, 34, 64, 0.05);
   }
 
   .info-icon {
     width: 50px;
     height: 50px;
-    background: rgba(0,245,255,0.1);
-    border: 1px solid rgba(0,245,255,0.25);
+    background: rgba(10, 34, 64, 0.04);
+    border: 1px solid rgba(10, 34, 64, 0.08);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -196,10 +170,10 @@
   }
 
   .info-title {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 16px;
     font-weight: 700;
-    color: var(--text);
+    color: var(--primary);
     margin-bottom: 8px;
     text-transform: uppercase;
   }
@@ -211,9 +185,10 @@
   }
 
   .info-link {
-    color: var(--cyan);
+    color: var(--primary);
     text-decoration: none;
     transition: color 0.3s;
+    font-weight: 600;
   }
 
   .info-link:hover {
@@ -232,25 +207,26 @@
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: rgba(0,245,255,0.1);
-    border: 1px solid rgba(0,245,255,0.2);
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
-    color: var(--cyan);
+    color: var(--primary);
     text-decoration: none;
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 700;
     transition: all 0.3s;
   }
 
   .social-link:hover {
-    background: var(--cyan);
-    color: #020408;
-    box-shadow: 0 0 20px rgba(0,245,255,0.4);
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(10, 34, 64, 0.15);
   }
 
   .alert {
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    border: 1px solid rgba(217, 119, 6, 0.3);
     color: var(--gold);
-    background: rgba(255, 215, 0, 0.08);
+    background: rgba(217, 119, 6, 0.08);
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 24px;
@@ -290,7 +266,7 @@
   <div class="contact-wrapper">
     <!-- Contact Form -->
     <div class="contact-form">
-      <h2 style="font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 32px;">Send us a Message</h2>
+      <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 32px;">Send us a Message</h2>
       
       {% if messages %}
         {% for message in messages %}

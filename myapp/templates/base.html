@@ -8,22 +8,24 @@
     <title>Dr. Design AI — Computer Vision Tools</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Exo+2:wght@300;400;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg: #020408;
-            --bg2: #060d18;
-            --cyan: #00f5ff;
-            --cyan2: #00bcd4;
-            --gold: #ffd700;
-            --purple: #7b2fff;
-            --green: #00ff88;
-            --text: #e0f0ff;
-            --muted: #4a6a8a;
-            --glass: rgba(0, 245, 255, 0.05);
-            --glass-border: rgba(0, 245, 255, 0.15);
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --primary: #0a2240;
+            --primary-light: #eff6ff;
+            --cyan: #0284c7;
+            --gold: #d97706;
+            --purple: #1e3a8a;
+            --green: #16a34a;
+            --text: #0f172a;
+            --muted: #64748b;
+            --glass: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(10, 34, 64, 0.08);
+            --border: #e2e8f0;
             --nav-h: 72px;
         }
 
@@ -40,72 +42,26 @@
         }
 
         body {
-            font-family: 'Exo 2', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: var(--text);
             overflow-x: hidden;
         }
 
-
-
-        /* ── ANIMATED BG GRID ── */
+        /* ── SUBTLE GEOSPATIAL BG GRID ── */
         .bg-grid {
             position: fixed;
             inset: 0;
             z-index: 0;
             background-image:
-                linear-gradient(rgba(0, 245, 255, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 245, 255, 0.04) 1px, transparent 1px);
-            background-size: 60px 60px;
-            animation: gridMove 20s linear infinite;
+                linear-gradient(rgba(10, 34, 64, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(10, 34, 64, 0.02) 1px, transparent 1px);
+            background-size: 80px 80px;
         }
 
-        @keyframes gridMove {
-            0% {
-                background-position: 0 0;
-            }
-
-            100% {
-                background-position: 60px 60px;
-            }
-        }
-
-        /* ── FLOATING PARTICLES ── */
+        /* ── FLOATING PARTICLES (DISABLED) ── */
         .particles {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--cyan);
-            border-radius: 50%;
-            animation: float linear infinite;
-            opacity: 0;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) translateX(0);
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 0.8;
-            }
-
-            90% {
-                opacity: 0.6;
-            }
-
-            100% {
-                transform: translateY(-10px) translateX(var(--dx, 30px));
-                opacity: 0;
-            }
+            display: none;
         }
 
         /* ── NAVBAR ── */
@@ -119,17 +75,18 @@
             display: flex;
             align-items: center;
             padding: 0 40px;
-            background: rgba(2, 4, 8, 0.6);
-            backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(10, 34, 64, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
             animation: navSlideDown 0.8s cubic-bezier(0.23, 1, 0.32, 1) both;
-            transition: background 0.4s, border-color 0.4s;
         }
 
         nav.scrolled {
-            background: rgba(2, 4, 8, 0.92);
-            border-bottom-color: rgba(0, 245, 255, 0.3);
-            box-shadow: 0 0 40px rgba(0, 245, 255, 0.08);
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom-color: rgba(10, 34, 64, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
         }
 
         @keyframes navSlideDown {
@@ -171,7 +128,6 @@
                 transform: translateX(0);
             }
         }
-
 
         .nav-links {
             display: flex;
@@ -216,10 +172,10 @@
         .nav-links a {
             display: block;
             padding: 8px 18px;
-            font-family: 'Space Mono', monospace;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
             color: var(--muted);
             text-decoration: none;
@@ -233,7 +189,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: var(--glass);
+            background: rgba(10, 34, 64, 0.04);
             border: 1px solid transparent;
             border-radius: 6px;
             transform: scaleX(0);
@@ -242,35 +198,35 @@
         }
 
         .nav-links a:hover {
-            color: var(--cyan);
+            color: var(--primary);
         }
 
         .nav-links a:hover::before {
             transform: scaleX(1);
-            border-color: var(--glass-border);
+            border-color: rgba(10, 34, 64, 0.08);
         }
 
         .nav-links a.active {
-            color: var(--cyan);
+            color: var(--primary);
         }
 
         .nav-links a.active::before {
             transform: scaleX(1);
-            border-color: rgba(0, 245, 255, 0.3);
-            background: rgba(0, 245, 255, 0.08);
+            border-color: rgba(10, 34, 64, 0.12);
+            background: rgba(10, 34, 64, 0.05);
         }
 
         .nav-cta {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Orbitron', monospace;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 11px;
             font-weight: 700;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            color: var(--bg);
-            background: var(--cyan);
+            color: #ffffff;
+            background: var(--primary);
             text-decoration: none;
             border: none;
             padding: 10px 22px;
@@ -301,14 +257,15 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transform: translateX(-100%) rotate(45deg);
             transition: transform 0.5s;
         }
 
         .nav-cta:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 245, 255, 0.5);
+            box-shadow: 0 8px 20px rgba(10, 34, 64, 0.25);
+            background: #14355a;
         }
 
         .nav-cta:hover::before {
@@ -328,7 +285,7 @@
             display: block;
             width: 24px;
             height: 2px;
-            background: var(--cyan);
+            background: var(--primary);
             transition: all 0.3s;
             border-radius: 2px;
         }
@@ -349,14 +306,14 @@
         .hero {
             position: relative;
             z-index: 1;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: calc(var(--nav-h) + 40px) 40px 80px;
+            padding: calc(var(--nav-h) + 60px) 40px 40px;
             text-align: center;
             overflow: hidden;
+            background: #ffffff;
         }
 
         /* Radial ambient glow */
@@ -368,8 +325,7 @@
             transform: translate(-50%, -50%);
             width: 800px;
             height: 800px;
-            background: radial-gradient(ellipse, rgba(0, 245, 255, 0.08) 0%, rgba(123, 47, 255, 0.05) 40%, transparent 70%);
-            animation: ambientPulse 6s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(10, 34, 64, 0.04) 0%, rgba(224, 240, 255, 0.2) 50%, transparent 70%);
             pointer-events: none;
         }
 
@@ -387,53 +343,26 @@
             }
         }
 
-        /* Scanning line */
+        /* Scanning line (DISABLED) */
         .scan-line {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-            opacity: 0.4;
-            animation: scanDown 4s linear infinite;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        @keyframes scanDown {
-            from {
-                top: 0;
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 0.4;
-            }
-
-            90% {
-                opacity: 0.4;
-            }
-
-            to {
-                top: 100%;
-                opacity: 0;
-            }
+            display: none;
         }
 
         .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(0, 245, 255, 0.08);
-            border: 1px solid rgba(0, 245, 255, 0.25);
+            background: rgba(10, 34, 64, 0.05);
+            border: 1px solid rgba(10, 34, 64, 0.12);
             border-radius: 100px;
             padding: 6px 18px;
-            font-family: 'Space Mono', monospace;
+            font-family: 'Inter', sans-serif;
             font-size: 11px;
-            color: var(--cyan);
-            letter-spacing: 2px;
+            color: var(--primary);
+            letter-spacing: 1px;
             text-transform: uppercase;
             margin-bottom: 32px;
+            font-weight: 600;
             animation: badgeFadeIn 1s 0.5s both;
         }
 
@@ -490,11 +419,12 @@
         }
 
         .hero-eyebrow {
-            font-family: 'Space Mono', monospace;
-            font-size: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
             color: var(--gold);
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             text-transform: uppercase;
+            font-weight: 700;
             margin-bottom: 16px;
             animation: eyebrowFade 1s 0.7s both;
         }
@@ -510,40 +440,37 @@
         }
 
         .hero-title {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(25px, 6vw, 60px);
-            font-weight: 900;
-            line-height: 0.95;
-            letter-spacing: -2px;
-            margin-bottom: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: clamp(32px, 6vw, 64px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 16px;
             position: relative;
         }
 
         .hero-title .line1 {
             display: block;
-            color: var(--text);
+            color: var(--primary);
             animation: titleLine 0.8s 0.8s cubic-bezier(0.25, 1, 0.23, 1) both;
         }
 
         .hero-title .line2 {
             display: block;
-            background: linear-gradient(90deg, var(--cyan), var(--purple), var(--cyan));
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: titleLine 0.8s 1s cubic-bezier(0.25, 1, 0.23, 1) both, textShimmer 4s 2s linear infinite;
+            color: var(--gold);
+            animation: titleLine 0.8s 1s cubic-bezier(0.25, 1, 0.23, 1) both;
             text-shadow: none;
         }
 
         .hero-title .line3 {
             display: block;
-            color: var(--gold);
-            font-size: 0.5em;
-            letter-spacing: 8px;
-            font-weight: 400;
+            color: var(--muted);
+            font-size: 0.45em;
+            letter-spacing: 4px;
+            font-weight: 600;
             animation: titleLine 0.8s 1.1s cubic-bezier(0.25, 1, 0.23, 1) both;
-            margin-top: 8px;
+            margin-top: 12px;
+            text-transform: uppercase;
         }
 
         @keyframes titleLine {
@@ -558,23 +485,13 @@
             }
         }
 
-        @keyframes textShimmer {
-            from {
-                background-position: 0% center;
-            }
-
-            to {
-                background-position: 200% center;
-            }
-        }
-
         .hero-desc {
-            max-width: 560px;
-            margin: 32px auto;
-            font-size: 17px;
-            color: rgba(224, 240, 255, 0.65);
-            line-height: 1.7;
-            font-weight: 300;
+            max-width: 640px;
+            margin: 24px auto 36px;
+            font-size: 18px;
+            color: var(--muted);
+            line-height: 1.6;
+            font-weight: 400;
             animation: descFade 1s 1.3s both;
         }
 
@@ -611,55 +528,40 @@
         }
 
         .btn-primary {
-            font-family: 'Orbitron', monospace;
-            font-size: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
             font-weight: 700;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            color: var(--bg);
-            background: var(--cyan);
+            color: #ffffff;
+            background: var(--primary);
             border: none;
             padding: 16px 36px;
             border-radius: 8px;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.3s;
+            transition: all 0.2s;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 10px;
-        }
-
-        .btn-primary::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
-            transform: translateX(-100%);
-            animation: shimmer 3s 2s infinite;
-        }
-
-        @keyframes shimmer {
-            to {
-                transform: translateX(200%);
-            }
+            box-shadow: 0 4px 14px rgba(10, 34, 64, 0.2);
         }
 
         .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(0, 245, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(10, 34, 64, 0.3);
+            background: #14355a;
         }
 
         .btn-secondary {
-            font-family: 'Orbitron', monospace;
-            font-size: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
             font-weight: 700;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            color: var(--cyan);
+            color: var(--primary);
             background: transparent;
-            border: 1px solid rgba(0, 245, 255, 0.35);
+            border: 1px solid rgba(10, 34, 64, 0.2);
             padding: 16px 36px;
             border-radius: 8px;
             cursor: pointer;
@@ -671,10 +573,9 @@
         }
 
         .btn-secondary:hover {
-            background: rgba(0, 245, 255, 0.08);
-            border-color: var(--cyan);
-            box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
-            transform: translateY(-3px);
+            background: rgba(10, 34, 64, 0.04);
+            border-color: var(--primary);
+            transform: translateY(-2px);
         }
 
         /* ── STATS BAR ── */
@@ -684,10 +585,10 @@
             display: flex;
             justify-content: center;
             gap: 0;
-            border-top: 1px solid var(--glass-border);
-            border-bottom: 1px solid var(--glass-border);
-            background: rgba(0, 245, 255, 0.03);
-            margin-top: 80px;
+            border-top: 1px solid rgba(10, 34, 64, 0.08);
+            border-bottom: 1px solid rgba(10, 34, 64, 0.08);
+            background: #ffffff;
+            margin-top: 0;
             padding: 0;
             animation: statsFade 1s 1.8s both;
             overflow: hidden;
@@ -707,7 +608,7 @@
             flex: 1;
             text-align: center;
             padding: 36px 20px;
-            border-right: 1px solid var(--glass-border);
+            border-right: 1px solid rgba(10, 34, 64, 0.08);
             position: relative;
             overflow: hidden;
             transition: background 0.3s;
@@ -724,8 +625,8 @@
             left: 50%;
             transform: translateX(-50%);
             width: 0;
-            height: 2px;
-            background: var(--cyan);
+            height: 3px;
+            background: var(--gold);
             transition: width 0.4s;
         }
 
@@ -734,26 +635,26 @@
         }
 
         .stat-item:hover {
-            background: rgba(0, 245, 255, 0.05);
+            background: rgba(10, 34, 64, 0.02);
         }
 
         .stat-value {
-            font-family: 'Orbitron', monospace;
-            font-size: 36px;
-            font-weight: 900;
-            color: var(--cyan);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--primary);
             display: block;
-            text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
         }
 
         .stat-label {
-            font-family: 'Space Mono', monospace;
+            font-family: 'Inter', sans-serif;
             font-size: 11px;
             color: var(--muted);
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             text-transform: uppercase;
             margin-top: 6px;
             display: block;
+            font-weight: 600;
         }
 
         /* ── TOOLS SECTION ── */
@@ -1116,9 +1017,20 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(0, 255, 136, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
+            }
         }
 
         /* ── MOBILE ── */
@@ -1180,10 +1092,307 @@
                 padding: 30px 20px;
             }
         }
+
+        /* ── SHOWCASE GALLERY SECTION ── */
+        .showcase-section {
+            padding: 20px 40px 80px;
+            background: #ffffff;
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border);
+        }
+
+        .showcase-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .showcase-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .showcase-header h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .showcase-header p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Tabs styling */
+        .gallery-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .tab-btn {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(10, 34, 64, 0.15);
+        }
+
+        /* Grid layout */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 30px;
+        }
+
+        .gallery-item {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .gallery-item.hidden {
+            display: none !important;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(10, 34, 64, 0.08);
+            border-color: #cbd5e1;
+        }
+
+        .img-wrap {
+            position: relative;
+            aspect-ratio: 16/10;
+            overflow: hidden;
+            background: #f1f5f9;
+            cursor: zoom-in;
+        }
+
+        .img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .gallery-item:hover .img-wrap img {
+            transform: scale(1.06);
+        }
+
+        .img-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 34, 64, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover .img-overlay {
+            opacity: 1;
+        }
+
+        .overlay-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            transform: translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .gallery-item:hover .overlay-icon {
+            transform: translateY(0);
+        }
+
+        .item-info {
+            padding: 20px;
+        }
+
+        .item-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .badge-road {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .badge-building {
+            background: #eff6ff;
+            color: #1e3a8a;
+        }
+
+        .badge-tree {
+            background: #fdf2f8;
+            color: #db2777;
+        }
+
+        .badge-change {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .item-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 0 6px;
+        }
+
+        .item-desc {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Lightbox modal styling */
+        .lightbox-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 25, 44, 0.95);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(8px);
+            padding: 20px;
+        }
+
+        .lightbox-modal.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .lightbox-modal.open .lightbox-content {
+            transform: scale(1);
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            object-fit: contain;
+        }
+
+        .lightbox-caption {
+            background: #ffffff;
+            padding: 16px 24px;
+            color: var(--primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .lightbox-caption span {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .showcase-section {
+                padding: 60px 20px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
 <body>
+
+
 
     <div class="bg-grid"></div>
     <div class="particles" id="particles"></div>
@@ -1192,6 +1401,9 @@
     <nav id="navbar">
         <a href="/" class="nav-logo">
             <img src="{% static 'images/logo-DDPL.svg' %}" alt="DR DESIGN Logo" class="nav-logo-img">
+            <span
+                style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 16px; color: var(--primary); letter-spacing: 0.5px; text-transform: uppercase; margin-left: 8px;">Dr.
+                Design GIS Portal</span>
         </a>
 
         <ul class="nav-links" id="navLinks">
@@ -1206,9 +1418,9 @@
             {% endif %}
         </ul>
         {% if request.user.is_authenticated %}
-        <a class="nav-cta" href="/">Hi, {{ request.user.first_name|default:request.user.username }} ▶</a>
+        <a class="nav-cta" href="/">Hi, {{ request.user.first_name|default:request.user.username }}</a>
         {% else %}
-        <a class="nav-cta" href="/signup/">Sign Up ▶</a>
+        <a class="nav-cta" href="/signup/">Sign Up</a>
         {% endif %}
         <div class="hamburger" id="hamburger">
             <span></span><span></span><span></span>
@@ -1228,17 +1440,17 @@
         {% endif %}
         <img src="{% static 'images/logo-DDPL.svg' %}" alt="DR. DESIGN TECHNOLOGY Logo" class="hero-logo">
 
-        <p class="hero-eyebrow">Welcome to</p>
+        <p class="hero-eyebrow">Geospatial AI Platform</p>
 
         <h1 class="hero-title">
-            <span class="line1">Dr. Design</span>
-            <span class="line2">GIS</span>
-            <span class="line3">AI Computer Vision Tools</span>
+            <span class="line1">Dr. Design GIS AI Portal</span>
+            <span class="line2">Decision Support System</span>
+            <span class="line3">Deep Learning Vision Infrastructure</span>
         </h1>
 
         <p class="hero-desc">
-            Professional-grade computer vision infrastructure for researchers, engineers, and innovators.
-            Deploy state-of-the-art vision models with a single API call.
+            Professional-grade artificial intelligence models for automated geospatial feature extraction, change
+            detection, road mapping, and urban footprinting supporting national planning missions.
         </p>
 
         <div class="hero-actions">
@@ -1263,19 +1475,207 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- ═══════════ USECASE GALLERY ═══════════ -->
+    <section class="showcase-section">
+        <div class="showcase-container">
+            <!-- Filter Tabs -->
+            <div class="gallery-tabs">
+                <button class="tab-btn active" data-filter="all">All Outputs</button>
+                <button class="tab-btn" data-filter="road">Road Detection</button>
+                <button class="tab-btn" data-filter="building">Footprint</button>
+                <button class="tab-btn" data-filter="tree">Tree and Vegetation</button>
+                <button class="tab-btn" data-filter="change">Change Detection</button>
+            </div>
+
+            <!-- Gallery Grid -->
+            <div class="gallery-grid">
+                <!-- Item 1: Building (Footprint) -->
+                <div class="gallery-item" data-category="building">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-05-13 153222.png' %}', 'Building Footprint Detection', 'Deep learning boundaries mapping housing blocks and structural layouts in high density areas.')">
+                        <img src="{% static 'images/Screenshot 2026-05-13 153222.png' %}"
+                            alt="Building Footprint Detection">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-building">Footprint</span>
+                        <h3 class="item-title">Building Footprint Detection</h3>
+                        <p class="item-desc">High-precision segmentation model outlining primary building boundaries and
+                            housing units.</p>
+                    </div>
+                </div>
+
+
+                <!-- Item 4: Road (Road Detection) -->
+                <div class="gallery-item" data-category="road">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-05-26 112500.png' %}', 'Road Centerline Extraction', 'Deep learning segmentation mask outlining street networks in high density urban zones.')">
+                        <img src="{% static 'images/Screenshot 2026-05-26 112500.png' %}"
+                            alt="Road Centerline Extraction">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-road">Road Detection</span>
+                        <h3 class="item-title">Road Centerline Extraction</h3>
+                        <p class="item-desc">Deep learning segmentation mask outlining street networks in high density
+                            urban zones.</p>
+                    </div>
+                </div>
+
+                <!-- Item 5: Change (Change Detection) -->
+                <div class="gallery-item" data-category="change">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-05-26 132341.png' %}', 'Municipal Cadastral Alignment', 'Orthorectified polygon boundaries isolating structural layouts from satellite feeds.')">
+                        <img src="{% static 'images/Screenshot 2026-05-26 132341.png' %}"
+                            alt="Municipal Cadastral Alignment">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-change">Road Detection</span>
+                        <h3 class="item-title">Municipal Cadastral Alignment</h3>
+                        <p class="item-desc">Orthorectified polygon boundaries isolating structural layouts from
+                            satellite feeds.</p>
+                    </div>
+                </div>
+
+                <!-- Item 6: Change (Change Detection) -->
+                <div class="gallery-item" data-category="change">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-05-28 132617.png' %}', 'Afforestation Grid Monitoring', 'Locating isolated tree crowns and calculating vegetation green index values.')">
+                        <img src="{% static 'images/Screenshot 2026-05-28 132617.png' %}"
+                            alt="Afforestation Grid Monitoring">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-change">Change Detection</span>
+                        <h3 class="item-title">Afforestation Grid Monitoring</h3>
+                        <p class="item-desc">Locating isolated tree crowns and calculating vegetation green index values
+                            in orchards and nursery grids.</p>
+                    </div>
+                </div>
+
+                <!-- Item 7: Change (Change Detection) -->
+                <div class="gallery-item" data-category="change">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-05-28 132628.png' %}', 'Nursery Tree Crown Count', 'Locating isolated tree crowns and calculating vegetation green index values.')">
+                        <img src="{% static 'images/Screenshot 2026-05-28 132628.png' %}"
+                            alt="Nursery Tree Crown Count">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-change">Change Detection</span>
+                        <h3 class="item-title">Nursery Tree Crown Count</h3>
+                        <p class="item-desc">AI segmentation isolating individual vegetation crowns for environmental
+                            monitoring and agricultural audits.</p>
+                    </div>
+                </div>
+
+                <!-- Item 8: Change (Change Detection) -->
+                <div class="gallery-item" data-category="change">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-05-30 105227.png' %}', 'Vegetation Index Mapping', 'Comprehensive canopy index calculation auditing local biomass density.')">
+                        <img src="{% static 'images/Screenshot 2026-05-30 105227.png' %}"
+                            alt="Vegetation Index Mapping">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-change">Change Detection</span>
+                        <h3 class="item-title">Vegetation Index Mapping</h3>
+                        <p class="item-desc">Comprehensive canopy index calculation to audit tree spacing, forestation
+                            health, and local biomass density.</p>
+                    </div>
+                </div>
+
+                <!-- Item 9: Building (Footprint) -->
+                <div class="gallery-item" data-category="building">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-06-13 180019.png' %}', 'Road Axis Connectivity Overlay', 'Automated vector mapping aligning street segmentations with existing GIS coordinates.')">
+                        <img src="{% static 'images/Screenshot 2026-06-13 180019.png' %}"
+                            alt="Road Axis Connectivity Overlay">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-building">Footprint</span>
+                        <h3 class="item-title">Road Axis Connectivity</h3>
+                        <p class="item-desc">Automated vector mapping aligning street segmentations with existing GIS
+                            base map coordinates.</p>
+                    </div>
+                </div>
+
+                <!-- Item 10: Tree (Tree and Vegetation) -->
+                <div class="gallery-item" data-category="tree">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-06-22 151935.png' %}', 'Urban Canopy Segmentations', 'Multi-temporal vegetation crown identification for green cover auditing.')">
+                        <img src="{% static 'images/Screenshot 2026-06-22 151935.png' %}"
+                            alt="Urban Canopy Segmentations">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-tree">Tree and Vegetation</span>
+                        <h3 class="item-title">Urban Canopy Segmentation</h3>
+                        <p class="item-desc">Multi-temporal vegetation crown identification for green cover auditing,
+                            canopy index, and urban forest planning.</p>
+                    </div>
+                </div>
+
+                <!-- Item 11: Building (Footprint) -->
+                <div class="gallery-item" data-category="building">
+                    <div class="img-wrap"
+                        onclick="openLightbox('{% static 'images/Screenshot 2026-06-23 164123.png' %}', 'Urban Growth & Change Detection', 'Temporal comparison highlighting new structural additions and modifications.')">
+                        <img src="{% static 'images/Screenshot 2026-06-23 164123.png' %}"
+                            alt="Urban Growth & Change Detection">
+                        <div class="img-overlay">
+                            <span class="overlay-icon">🔍</span>
+                        </div>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-badge badge-building">Footprint</span>
+                        <h3 class="item-title">Urban Growth & Change</h3>
+                        <p class="item-desc">Temporal comparison highlighting new structural additions and modifications
+                            between map phases.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div id="galleryLightbox" class="lightbox-modal" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <img id="lightboxImg" src="" alt="Showcase Preview">
+            <div id="lightboxCaption" class="lightbox-caption">
+                <div id="lightboxTitle">Project Title</div>
+                <span id="lightboxDesc">Detailed project description will load here.</span>
+            </div>
+        </div>
+    </div>
+
     <!-- ═══════════ FOOTER ═══════════ -->
     <footer class="footer-section">
         <div class="footer-main">
             <!-- Brand Section -->
             <div class="footer-brand-col">
-                <span class="footer-brand">DR.DESIGN AI</span>
-                <p class="footer-tagline">Advanced geospatial computer vision and deep learning automation infrastructure.</p>
-                <div class="footer-socials">
-                    <a href="#" title="Twitter">𝕏</a>
-                    <a href="#" title="LinkedIn">in</a>
-                    <a href="#" title="GitHub">gh</a>
-                    <a href="#" title="Discord">dc</a>
-                </div>
+                <span class="footer-brand">Dr. Design GIS Portal</span>
+                <p class="footer-tagline">National Geospatial AI & automated computer vision decision support
+                    infrastructure.</p>
             </div>
 
             <!-- Links Group 1: Tools -->
@@ -1283,9 +1683,9 @@
                 <span class="footer-col-title">AI Engines</span>
                 <ul class="footer-links-list">
                     <li><a href="{% url 'upload' %}">Change Detection</a></li>
-                    <li><a href="{% url 'road' %}">Road Detection</a></li>
+                    <li><a href="{% url 'road' %}">Road Extraction</a></li>
                     <li><a href="{% url 'building_home' %}">Building Footprint</a></li>
-                    <li><a href="{% url 'tree_home' %}">Tree & Vegetation</a></li>
+                    <li><a href="{% url 'tree_home' %}">Vegetation Analytics</a></li>
                 </ul>
             </div>
 
@@ -1303,10 +1703,10 @@
 
         <!-- Footer Bottom Bar -->
         <div class="footer-bottom">
-            <span class="footer-copy">© 2026 Dr. Design AI · All rights reserved.</span>
+            <span class="footer-copy">© 2026 Dr. Design GIS Portal. All rights reserved.</span>
             <div class="footer-status">
                 <span class="status-dot"></span>
-                <span class="status-text">GIS Engine: Online</span>
+                <span class="status-text">National GIS Engine: Online</span>
             </div>
         </div>
     </footer>
@@ -1328,24 +1728,7 @@
             navLinks.classList.toggle('open');
         });
 
-        // ── Floating particles
-        const container = document.getElementById('particles');
-        for (let i = 0; i < 60; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            const hue = Math.random() > 0.7 ? '#7b2fff' : Math.random() > 0.5 ? '#00ff88' : '#00f5ff';
-            p.style.cssText = `
-    left: ${Math.random() * 100}%;
-    width: ${Math.random() * 3 + 1}px;
-    height: ${Math.random() * 3 + 1}px;
-    background: ${hue};
-    --dx: ${(Math.random() - 0.5) * 200}px;
-    animation-duration: ${Math.random() * 15 + 8}s;
-    animation-delay: ${Math.random() * 10}s;
-    box-shadow: 0 0 6px ${hue};
-  `;
-            container.appendChild(p);
-        }
+        // ── Floating particles (disabled)
 
         // ── Card mouse spotlight
         document.querySelectorAll('[data-card]').forEach(card => {
@@ -1390,8 +1773,55 @@
                 setTimeout(() => {
                     alert.remove();
                 }, 500);
-            }, 2000);
-        });
+            });
+
+            // ── Showcase Gallery Tab Filters
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const galleryItems = document.querySelectorAll('.gallery-item');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filterValue = btn.getAttribute('data-filter');
+
+                    galleryItems.forEach(item => {
+                        if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                            item.classList.remove('hidden');
+                        } else {
+                            item.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            // ── Showcase Lightbox Modal
+            window.openLightbox = function (imgSrc, title, desc) {
+                const lightbox = document.getElementById('galleryLightbox');
+                const lightboxImg = document.getElementById('lightboxImg');
+                const lightboxTitle = document.getElementById('lightboxTitle');
+                const lightboxDesc = document.getElementById('lightboxDesc');
+
+                lightboxImg.src = imgSrc;
+                lightboxTitle.textContent = title;
+                lightboxDesc.textContent = desc;
+
+                lightbox.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            window.closeLightbox = function () {
+                const lightbox = document.getElementById('galleryLightbox');
+                lightbox.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    closeLightbox();
+                }
+            });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

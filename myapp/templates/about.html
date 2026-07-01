@@ -3,25 +3,13 @@
 
 {% block content %}
 <style>
-  :root {
-    --bg: #020408;
-    --cyan: #00f5ff;
-    --gold: #ffd700;
-    --purple: #7b2fff;
-    --green: #00ff88;
-    --text: #e0f0ff;
-    --muted: #4a6a8a;
-    --glass: rgba(0, 245, 255, 0.05);
-    --glass-border: rgba(0, 245, 255, 0.15);
-  }
-
   .about-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 130px 40px 80px;
     position: relative;
     z-index: 1;
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
     color: var(--text);
   }
 
@@ -31,12 +19,12 @@
   }
 
   .about-header h1 {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: clamp(36px, 6vw, 56px);
-    font-weight: 900;
-    color: var(--text);
+    font-weight: 800;
+    color: var(--primary);
     margin-bottom: 16px;
-    letter-spacing: 2px;
+    letter-spacing: -1.5px;
   }
 
   .about-header p {
@@ -49,14 +37,15 @@
 
   /* ── SECTION TITLE ── */
   .section-title {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 32px;
-    border-left: 4px solid var(--cyan);
+    border-left: 4px solid var(--gold);
     padding-left: 16px;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
+    color: var(--primary);
   }
 
   /* ── ARCHITECTURE PANEL ── */
@@ -104,10 +93,10 @@
   }
 
   .arch-stat-val {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 28px;
     font-weight: 800;
-    color: var(--cyan);
+    color: var(--primary);
     margin-bottom: 4px;
   }
 
@@ -116,6 +105,7 @@
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-weight: 600;
   }
 
   /* ── TOOLS GRID ── */
@@ -141,8 +131,8 @@
   }
 
   .tool-detail-card:hover {
-    border-color: rgba(0, 245, 255, 0.35);
-    box-shadow: 0 12px 40px rgba(0, 245, 255, 0.08);
+    border-color: rgba(10, 34, 64, 0.15);
+    box-shadow: 0 12px 40px rgba(10, 34, 64, 0.06);
     transform: translateY(-4px);
   }
 
@@ -154,16 +144,16 @@
   }
 
   .tool-badge {
-    font-family: 'Space Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 11px;
     font-weight: 700;
-    color: var(--cyan);
-    background: rgba(0, 245, 255, 0.1);
-    border: 1px solid rgba(0, 245, 255, 0.25);
+    color: var(--primary);
+    background: rgba(10, 34, 64, 0.05);
+    border: 1px solid rgba(10, 34, 64, 0.1);
     border-radius: 4px;
     padding: 4px 8px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
   }
 
   .tool-detail-icon {
@@ -171,10 +161,10 @@
   }
 
   .tool-detail-name {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 22px;
     font-weight: 700;
-    color: var(--text);
+    color: var(--primary);
     margin-bottom: 14px;
   }
 
@@ -230,24 +220,24 @@
   }
 
   .stack-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: #ffffff;
+    border: 1px solid rgba(10, 34, 64, 0.08);
     border-radius: 8px;
     padding: 24px;
     text-align: center;
-    transition: background 0.3s;
+    transition: all 0.3s;
   }
 
   .stack-card:hover {
-    background: rgba(0, 245, 255, 0.03);
-    border-color: rgba(0, 245, 255, 0.15);
+    background: rgba(10, 34, 64, 0.02);
+    border-color: rgba(10, 34, 64, 0.15);
   }
 
   .stack-name {
-    font-family: 'Orbitron', monospace;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 16px;
     font-weight: 700;
-    color: var(--text);
+    color: var(--primary);
     margin-bottom: 8px;
   }
 
@@ -255,6 +245,26 @@
     font-size: 13px;
     color: var(--muted);
     line-height: 1.4;
+  }
+
+  .tool-preview-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid rgba(10, 34, 64, 0.08);
+  }
+
+  .tool-preview-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .tool-detail-card:hover .tool-preview-img img {
+    transform: scale(1.04);
   }
 </style>
 
@@ -271,10 +281,15 @@
     <div class="architecture-grid">
       <div class="arch-text">
         <p>
-          Dr. Design AI is built as a highly scalable geospatial computer vision infrastructure. The portal is engineered to ingest high-resolution drone orthomosaics and multispectral satellite imagery, parse them through asynchronous worker processes, and run state-of-the-art neural network inference pipelines.
+          Dr. Design AI is built as a highly scalable geospatial computer vision infrastructure. The portal is
+          engineered to ingest high-resolution drone orthomosaics and multispectral satellite imagery, parse them
+          through asynchronous worker processes, and run state-of-the-art neural network inference pipelines.
         </p>
         <p>
-          To maintain extreme performance under heavy processing demands (such as multi-gigabyte TIFF images), the platform utilizes chunked uploads and executes core spatial calculations inside celery workers. Every model output is integrated with geospatial reference frames, automatically converting vector masks back into standard GIS Shapefiles.
+          To maintain extreme performance under heavy processing demands (such as multi-gigabyte TIFF images), the
+          platform utilizes chunked uploads and executes core spatial calculations inside celery workers. Every model
+          output is integrated with geospatial reference frames, automatically converting vector masks back into
+          standard GIS Shapefiles.
         </p>
       </div>
       <div class="arch-stats">
@@ -302,16 +317,21 @@
   <section>
     <div class="section-title">AI Processing Modules</div>
     <div class="tools-detail-grid">
-      
+
       <!-- Change Detection -->
       <div class="tool-detail-card">
         <div class="tool-meta">
           <span class="tool-badge">Temporal Analysis</span>
           <span class="tool-detail-icon">🛠️</span>
         </div>
+        <div class="tool-preview-img">
+          <img src="{% static 'images/Screenshot 2026-05-30 105227.png' %}" alt="Change Detection Showcase">
+        </div>
         <div class="tool-detail-name">Change Detection</div>
         <p class="tool-detail-desc">
-          Analyzes dual-temporal satellite or drone captures of the same area. Our Siamese Deep Learning networks isolate differences in land cover, building footprints, and infrastructure, filtering out seasonal illumination and shadow artifacts.
+          Analyzes dual-temporal satellite or drone captures of the same area. Our Siamese Deep Learning networks
+          isolate differences in land cover, building footprints, and infrastructure, filtering out seasonal
+          illumination and shadow artifacts.
         </p>
         <ul class="tool-tech-list">
           <li class="tool-tech-tag">Siamese Nets</li>
@@ -326,9 +346,14 @@
           <span class="tool-badge">Linear Extraction</span>
           <span class="tool-detail-icon">🛣️</span>
         </div>
+        <div class="tool-preview-img">
+          <img src="{% static 'images/Screenshot 2026-05-26 132341.png' %}" alt="Road Detection Showcase">
+        </div>
         <div class="tool-detail-name">Road Detection</div>
         <p class="tool-detail-desc">
-          Automates the tracing and mapping of road corridors, dirt tracks, and highways. Optimized with topological loss functions, this module ensures high continuity in roads, minimizing fractures from overhanging tree canopies or shadows.
+          Automates the tracing and mapping of road corridors, dirt tracks, and highways. Optimized with topological
+          loss functions, this module ensures high continuity in roads, minimizing fractures from overhanging tree
+          canopies or shadows.
         </p>
         <ul class="tool-tech-list">
           <li class="tool-tech-tag">U-Net / SegFormer</li>
@@ -343,9 +368,14 @@
           <span class="tool-badge">Instance Segmentation</span>
           <span class="tool-detail-icon">🏗️</span>
         </div>
+        <div class="tool-preview-img">
+          <img src="{% static 'images/Screenshot 2026-05-13 153222.png' %}" alt="Building Footprint Showcase">
+        </div>
         <div class="tool-detail-name">Building Footprint</div>
         <p class="tool-detail-desc">
-          Delineates individual building boundary profiles. Uses Mask R-CNN architectures to classify every rooftop instance, generating vector polygons that align with georeferenced coordinates for integration with city planning models.
+          Delineates individual building boundary profiles. Uses Mask R-CNN architectures to classify every rooftop
+          instance, generating vector polygons that align with georeferenced coordinates for integration with city
+          planning models.
         </p>
         <ul class="tool-tech-list">
           <li class="tool-tech-tag">Mask R-CNN</li>
@@ -360,9 +390,14 @@
           <span class="tool-badge">Canopy Analysis</span>
           <span class="tool-detail-icon">🌳</span>
         </div>
+        <div class="tool-preview-img">
+          <img src="{% static 'images/Screenshot 2026-06-22 151935.png' %}" alt="Tree and Vegetation Showcase">
+        </div>
         <div class="tool-detail-name">Tree & Vegetation</div>
         <p class="tool-detail-desc">
-          Performs semantic classification of high-density forest canopies, trees, and low-growing vegetation. Powered by a SegFormer-b5 transformer model, it outputs area coverage statistics (in sq. meters) and multi-class shapefile layers.
+          Performs semantic classification of high-density forest canopies, trees, and low-growing vegetation. Powered
+          by a SegFormer-b5 transformer model, it outputs area coverage statistics (in sq. meters) and multi-class
+          shapefile layers.
         </p>
         <ul class="tool-tech-list">
           <li class="tool-tech-tag">SegFormer-b5</li>
@@ -379,20 +414,23 @@
     <div class="section-title">Core Technology Stack</div>
     <div class="stack-grid">
       <div class="stack-card">
-        <div class="stack-name">PyTorch</div>
+        <div class="stack-name">Python / PyTorch</div>
         <div class="stack-desc">Deep learning model training and hardware-accelerated GPU inference pipeline.</div>
       </div>
       <div class="stack-card">
         <div class="stack-name">Rasterio / Fiona</div>
-        <div class="stack-desc">GIS geotransform math, windowed raster reading, and vector polygon shapefile construction.</div>
+        <div class="stack-desc">GIS geotransform math, windowed raster reading, and vector polygon shapefile
+          construction.</div>
       </div>
       <div class="stack-card">
         <div class="stack-name">Celery / Redis</div>
-        <div class="stack-desc">Asynchronous task manager keeping the web portal responsive during long inference operations.</div>
+        <div class="stack-desc">Asynchronous task manager keeping the web portal responsive during long inference
+          operations.</div>
       </div>
       <div class="stack-card">
         <div class="stack-name">Django</div>
-        <div class="stack-desc">Secure web framework managing uploads, job states, user accounts, and RESTful database entities.</div>
+        <div class="stack-desc">Secure web framework managing uploads, job states, user accounts, and RESTful database
+          entities.</div>
       </div>
     </div>
   </section>
