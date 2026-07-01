@@ -1,0 +1,1194 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/resumablejs/resumable.js"></script>
+
+<style>
+/* ===== CHANGE DETECTION UPLOAD UI ===== */
+.upload-page {
+    min-height: calc(100vh - 86px);
+    padding: clamp(42px, 8vw, 82px) clamp(12px, 4vw, 18px) clamp(16px, 8vw, 64px);
+    background:
+        linear-gradient(135deg, rgba(5, 12, 27, 0.72), rgba(12, 30, 50, 0.86)),
+        radial-gradient(circle at 18% 20%, rgba(0, 212, 255, 0.14), transparent 34%),
+        radial-gradient(circle at 82% 18%, rgba(0, 185, 140, 0.12), transparent 30%);
+}
+
+.upload-container {
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.upload-card {
+    background: rgba(245, 248, 252, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 22px;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+}
+
+.brand-panel {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: clamp(14px, 4vw, 22px);
+    padding: clamp(16px, 4vw, 28px) clamp(16px, 5vw, 34px);
+    background: linear-gradient(135deg, #f8fbff 0%, #eaf4f8 100%);
+    border-bottom: 1px solid #d8e5ee;
+}
+
+.company-logo-box {
+    width: clamp(70px, 12vw, 92px);
+    height: clamp(56px, 10vw, 74px);
+    border-radius: 18px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 1px #e5eef4, 0 12px 30px rgba(15, 33, 55, 0.12);
+}
+
+.company-logo {
+    width: clamp(56px, 10vw, 76px);
+    height: clamp(44px, 8vw, 62px);
+    object-fit: contain;
+}
+
+.brand-title {
+    margin: 0;
+    color: #172033;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+}
+
+.brand-subtitle {
+    margin: 6px 0 0;
+    color: #526174;
+    font-size: clamp(13px, 3vw, 14px);
+    font-weight: 600;
+}
+
+.brand-chip {
+    color: #064e3b;
+    background: #d8f7ee;
+    border: 1px solid #9ce5cf;
+    border-radius: 999px;
+    padding: clamp(6px, 2vw, 9px) clamp(10px, 3vw, 14px);
+    font-size: clamp(11px, 2.5vw, 12px);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: normal;
+}
+
+.upload-body {
+    padding: clamp(16px, 4vw, 34px);
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: clamp(12px, 3vw, 18px);
+    margin-bottom: clamp(14px, 3vw, 22px);
+}
+
+.section-heading h2 {
+    margin: 0;
+    color: #172033;
+    font-size: clamp(20px, 4vw, 22px);
+    font-weight: 800;
+}
+
+.section-heading p {
+    margin: 4px 0 0;
+    color: #5c6878;
+    font-size: clamp(12px, 3vw, 14px);
+}
+
+.format-note {
+    color: #0f5b76;
+    background: #e7f8ff;
+    border: 1px solid #b9eafa;
+    border-radius: 12px;
+    padding: clamp(6px, 2vw, 10px) clamp(10px, 2.5vw, 12px);
+    font-size: clamp(11px, 2.5vw, 12px);
+    font-weight: 700;
+    white-space: normal;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.grid > div {
+    min-width: 0;
+}
+
+.dropzone {
+    min-height: clamp(180px, 50vw, 220px);
+    border: 2px dashed #b9c9d8;
+    border-radius: 18px;
+    padding: clamp(16px, 4vw, 28px);
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(242, 247, 251, 0.92));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.dropzone:hover {
+    border-color: #1677ff;
+    transform: translateY(-3px);
+    box-shadow: 0 18px 34px rgba(22, 119, 255, 0.16);
+}
+
+.dropzone.dragover {
+    border-color: #00b98c;
+    background: #ecfff9;
+    transform: translateY(-3px);
+    box-shadow: 0 18px 42px rgba(0, 185, 140, 0.24);
+}
+
+.dropzone::before {
+    content: attr(data-step);
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    color: #8ea1b3;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.zone-top {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 3vw, 16px);
+}
+
+.zone-icon {
+    width: clamp(44px, 10vw, 54px);
+    height: clamp(44px, 10vw, 54px);
+    border-radius: 16px;
+    color: white;
+    background: linear-gradient(135deg, #1677ff, #00b98c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(18px, 4vw, 22px);
+    font-weight: 900;
+    box-shadow: 0 12px 28px rgba(22, 119, 255, 0.24);
+    flex: 0 0 auto;
+}
+
+.dropzone h3 {
+    margin: 0;
+    color: #1d2733;
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 800;
+}
+
+.dropzone p {
+    margin: 6px 0 0;
+    color: #5d6877;
+    font-size: clamp(12px, 3vw, 14px);
+    font-weight: 600;
+}
+
+.zone-footer {
+    margin-top: clamp(16px, 4vw, 28px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(8px, 2vw, 12px);
+    border-top: 1px solid #dce7ef;
+    padding-top: clamp(12px, 3vw, 18px);
+}
+
+.browse-pill {
+    color: #0c4a6e;
+    background: #e8f6ff;
+    border-radius: 999px;
+    padding: clamp(6px, 2vw, 8px) clamp(10px, 2.5vw, 12px);
+    font-size: clamp(11px, 2.5vw, 12px);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.file-name {
+    min-width: 0;
+    color: #0c4a6e;
+    font-size: clamp(12px, 2.5vw, 13px);
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.upload-btn {
+    position: relative;
+    z-index: 2;
+    margin-top: clamp(20px, 5vw, 30px);
+    width: 100%;
+    padding: clamp(14px, 3vw, 16px);
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, #1677ff 0%, #0aa7d8 48%, #00b98c 100%);
+    color: white;
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 16px 36px rgba(22, 119, 255, 0.26);
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 42px rgba(22, 119, 255, 0.4);
+}
+
+.upload-btn:disabled,
+.upload-btn.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(35%);
+    box-shadow: none;
+}
+
+.upload-btn:disabled:hover,
+.upload-btn.is-disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.progress-wrapper {
+    margin-top: clamp(16px, 4vw, 25px);
+    display: none;
+    background: #eef5f8;
+    border: 1px solid #d5e4ec;
+    border-radius: 16px;
+    padding: clamp(12px, 3vw, 16px);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #dbe8ef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(135deg, #1677ff, #00b98c);
+    transition: 0.3s;
+}
+
+.progress-text {
+    margin-top: 10px;
+    color: #244154;
+    font-weight: 700;
+    text-align: center;
+    font-size: clamp(13px, 2.5vw, 15px);
+}
+
+/* ===== MOBILE FIRST RESPONSIVE DESIGN ===== */
+/* Extra Small Devices (320px - 480px) */
+@media (max-width: 480px) {
+    .upload-page {
+        padding: clamp(28px, 8vw, 44px) clamp(16px, 4vw, 28px) clamp(16px, 4vw, 28px);
+        min-height: calc(100vh - 80px);
+    }
+
+    .upload-card {
+        border-radius: 16px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .brand-panel {
+        grid-template-columns: 1fr;
+        gap: clamp(12px, 3vw, 16px);
+        padding: clamp(16px, 4vw, 24px);
+    }
+
+    .company-logo-box {
+        width: 70px;
+        height: 56px;
+        margin: 0 auto;
+    }
+
+    .company-logo {
+        width: 56px;
+        height: 44px;
+    }
+
+    .brand-panel > div:nth-child(2) {
+        text-align: center;
+        width: 100%;
+    }
+
+    .brand-chip {
+        justify-self: center;
+        display: inline-block;
+    }
+
+    .upload-body {
+        padding: clamp(16px, 4vw, 24px);
+    }
+
+    .section-heading {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .section-heading > div {
+        width: 100%;
+    }
+
+    .format-note {
+        width: 100%;
+        text-align: center;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: clamp(14px, 3vw, 18px);
+    }
+
+    .dropzone {
+        min-height: 160px;
+        padding: clamp(12px, 3vw, 20px);
+        border-radius: 14px;
+    }
+
+    .zone-footer {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: clamp(16px, 3vw, 20px);
+        padding-top: 14px;
+    }
+
+    .browse-pill {
+        padding: 7px 10px;
+        font-size: 11px;
+        align-self: center;
+    }
+
+    .file-name {
+        text-align: center;
+        font-size: 11px;
+    }
+}
+
+/* Small and tablet layouts */
+@media (min-width: 481px) and (max-width: 960px) {
+    .upload-page {
+        padding: clamp(34px, 7vw, 56px) clamp(10px, 3vw, 18px) clamp(18px, 4vw, 32px);
+    }
+
+    .brand-panel {
+        grid-template-columns: auto 1fr;
+        gap: 16px;
+        padding: clamp(20px, 4vw, 28px);
+    }
+
+    .brand-chip {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .company-logo-box {
+        width: 80px;
+        height: 65px;
+    }
+
+    .company-logo {
+        width: 65px;
+        height: 52px;
+    }
+
+    .upload-body {
+        padding: clamp(20px, 4vw, 28px);
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: clamp(14px, 3vw, 18px);
+    }
+
+    .dropzone {
+        min-height: 170px;
+        padding: clamp(16px, 3vw, 24px);
+    }
+}
+
+/* Large Screens (961px and above) */
+@media (min-width: 961px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .dropzone {
+        padding: clamp(16px, 4vw, 28px);
+    }
+
+    .dropzone:active {
+        border-color: #00b98c;
+        background: #ecfff9;
+        transform: scale(0.98);
+    }
+
+    .upload-btn {
+        padding: clamp(16px, 4vw, 18px);
+        min-height: 48px;
+    }
+
+    .upload-btn:active {
+        transform: scale(0.96);
+        background: linear-gradient(135deg, #1262d4 0%, #0894c8 48%, #00a37a 100%);
+    }
+}
+
+/* Very small devices - extra padding reduction */
+@media (max-width: 360px) {
+    .upload-page {
+        padding: 24px 8px 12px;
+    }
+
+    .brand-panel {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+
+    .upload-body {
+        padding: 12px;
+    }
+
+    .upload-container {
+        max-width: 100%;
+    }
+
+    .dropzone::before {
+        font-size: 10px;
+        top: 10px;
+        right: 12px;
+    }
+}
+
+/* ===== FOOTPRINT TRACKERS & SPINNERS ===== */
+.footprint-tracker {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(22, 119, 255, 0.16);
+    border-radius: 16px;
+    padding: clamp(12px, 3vw, 16px) clamp(14px, 3vw, 20px);
+    margin-top: clamp(10px, 2vw, 14px);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: clamp(6px, 2vw, 8px);
+}
+
+.tracker-title {
+    font-size: clamp(11px, 2.5vw, 13px);
+    font-weight: 750;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tracker-pct {
+    font-size: clamp(12px, 2.5vw, 14px);
+    font-weight: 800;
+    color: #1677ff;
+}
+
+.tracker-bar {
+    background: rgba(15, 23, 42, 0.06);
+    height: clamp(6px, 1.5vw, 8px);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: clamp(6px, 2vw, 8px);
+    position: relative;
+}
+
+.tracker-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #1677ff, #00b98c);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tracker-status {
+    font-size: clamp(11px, 2.5vw, 12px);
+    font-weight: 600;
+    color: #57606a;
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 2vw, 8px);
+}
+
+/* Spinner and pulsing animations */
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(22, 119, 255, 0.2);
+    border-top: 2px solid #1677ff;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+}
+
+.spinner-pulse {
+    width: 8px;
+    height: 8px;
+    background-color: #1677ff;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 1.4s ease-in-out infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.5; }
+}
+</style>
+
+<div class="upload-page">
+    <div class="upload-container">
+        <div class="upload-card">
+            {% csrf_token %}
+
+            <div class="brand-panel">
+                <div class="company-logo-box">
+                    <img src="{% static 'images/logo-DDPL.svg' %}" alt="Company Logo" class="company-logo">
+                </div>
+                <div>
+                    <h1 class="brand-title">Change Detection</h1>
+                    <p class="brand-subtitle">Upload matching old and new imagery for automated comparison.</p>
+                </div>
+                <div class="brand-chip">GIS Processing</div>
+            </div>
+
+            <div class="upload-body">
+                <div class="section-heading">
+                    <div>
+                        <h2>Image Upload</h2>
+                        <p>Choose both files before starting the detection workflow.</p>
+                    </div>
+                    <div class="format-note">Old image + new image required</div>
+                </div>
+
+                <div class="grid">
+                    <div>
+                        <div class="dropzone" id="zone1" data-step="01">
+                            <div class="zone-top">
+                                <div class="zone-icon">O</div>
+                                <div>
+                                    <h3>Old Image</h3>
+                                    <p>Drag and drop or select from your system</p>
+                                </div>
+                            </div>
+                            <input type="file" id="file1" hidden>
+                            <div class="zone-footer">
+                                <div id="name1" class="file-name">No file selected</div>
+                                <span class="browse-pill">Browse</span>
+                            </div>
+                        </div>
+                        <!-- Old Image Building Footprint Tracker -->
+                        <div id="footprint-tracker-1" class="footprint-tracker" style="display: none;">
+                            <div class="tracker-header">
+                                <span class="tracker-title">Uploading Old Image</span>
+                                <span id="tracker-pct-1" class="tracker-pct">0%</span>
+                            </div>
+                            <div class="tracker-bar">
+                                <div id="tracker-fill-1" class="tracker-fill"></div>
+                            </div>
+                            <div id="tracker-status-1" class="tracker-status">Initializing...</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="dropzone" id="zone2" data-step="02">
+                            <div class="zone-top">
+                                <div class="zone-icon">N</div>
+                                <div>
+                                    <h3>New Image</h3>
+                                    <p>Drag and drop or select from your system</p>
+                                </div>
+                            </div>
+                            <input type="file" id="file2" hidden>
+                            <div class="zone-footer">
+                                <div id="name2" class="file-name">No file selected</div>
+                                <span class="browse-pill">Browse</span>
+                            </div>
+                        </div>
+                        <!-- New Image Building Footprint Tracker -->
+                        <div id="footprint-tracker-2" class="footprint-tracker" style="display: none;">
+                            <div class="tracker-header">
+                                <span class="tracker-title">Uploading New Image</span>
+                                <span id="tracker-pct-2" class="tracker-pct">0%</span>
+                            </div>
+                            <div class="tracker-bar">
+                                <div id="tracker-fill-2" class="tracker-fill"></div>
+                            </div>
+                            <div id="tracker-status-2" class="tracker-status">Initializing...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="upload-btn" onclick="startUpload()" id="btn" disabled style="opacity: 0.6;">
+                    Select Old & New Images
+                </button>
+
+                <div class="progress-wrapper" id="progressWrap">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== GLOBAL STATE =====
+let globJobId = null;
+let globOldPath = null;
+let globNewPath = null;
+let oldReady = false;
+let newReady = false;
+let selectedOldFile = null;
+let selectedNewFile = null;
+let footprintWorkflowStarted = false;
+let processingStarted = false;
+
+// ===== DRAG DROP =====
+function setupDrop(zoneId, fileId, nameId) {
+    let zone = document.getElementById(zoneId);
+    let input = document.getElementById(fileId);
+
+    zone.onclick = () => input.click();
+
+    zone.ondragover = (e) => {
+        e.preventDefault();
+        zone.classList.add("dragover");
+    };
+
+    zone.ondragleave = () => zone.classList.remove("dragover");
+
+    zone.ondrop = (e) => {
+        e.preventDefault();
+        zone.classList.remove("dragover");
+
+        input.files = e.dataTransfer.files;
+        showName(input, nameId);
+    };
+
+    input.onchange = () => showName(input, nameId);
+}
+
+async function showName(input, id) {
+    const nameBox = document.getElementById(id);
+    const file = input.files[0];
+    if (!file) {
+        nameBox.innerHTML = "No file selected";
+        if (id === "name1") {
+            selectedOldFile = null;
+            globOldPath = null;
+            oldReady = false;
+        } else {
+            selectedNewFile = null;
+            globNewPath = null;
+            newReady = false;
+        }
+        updateSubmitButtonState();
+        return;
+    }
+
+    nameBox.innerHTML = file.name;
+
+    if (id === "name1") {
+        selectedOldFile = file;
+        globOldPath = null;
+        oldReady = false;
+        resetTracker(1);
+    } else {
+        selectedNewFile = file;
+        globNewPath = null;
+        newReady = false;
+        resetTracker(2);
+    }
+
+    updateSubmitButtonState();
+
+    if (selectedOldFile && selectedNewFile && !footprintWorkflowStarted) {
+        startSequentialFootprintWorkflow();
+    }
+}
+
+setupDrop("zone1", "file1", "name1");
+setupDrop("zone2", "file2", "name2");
+
+document.getElementById("btn").addEventListener("click", (event) => {
+    event.preventDefault();
+    startUpload();
+});
+
+// ===== SEQUENTIAL FOOTPRINT CONTROLLER =====
+async function startSequentialFootprintWorkflow() {
+    footprintWorkflowStarted = true;
+    globJobId = null;
+    globOldPath = null;
+    globNewPath = null;
+    oldReady = false;
+    newReady = false;
+    updateSubmitButtonState();
+
+    try {
+        setWaitingTracker(2, "Waiting for old footprint to finish...");
+        await processFootprintFile(selectedOldFile, "old", 1);
+        await processFootprintFile(selectedNewFile, "new", 2);
+    } catch (error) {
+        console.error("Sequential footprint workflow failed:", error);
+        alert("Footprint generation error: " + error.message);
+    } finally {
+        footprintWorkflowStarted = false;
+        updateSubmitButtonState();
+    }
+}
+
+async function processFootprintFile(file, imageType, index) {
+    const tracker = document.getElementById(`footprint-tracker-${index}`);
+    const fill = document.getElementById(`tracker-fill-${index}`);
+    const pct = document.getElementById(`tracker-pct-${index}`);
+    const statusText = document.getElementById(`tracker-status-${index}`);
+    // Reveal tracker and show uploading state
+    tracker.style.display = "block";
+    statusText.innerHTML = `<span class="spinner"></span> Uploading to server...`;
+    fill.style.width = "0%";
+    fill.style.background = "linear-gradient(90deg, #1677ff, #00b98c)";
+    pct.innerHTML = "0%";
+
+    if (imageType === "old") {
+        oldReady = false;
+    } else {
+        newReady = false;
+    }
+    updateSubmitButtonState();
+
+    try {
+        // Step 1: Upload file to server in background
+        console.log(`[${imageType}] Starting upload...`);
+        const file_path = await simpleUpload(file);
+        console.log(`[${imageType}] Upload successful: ${file_path}`);
+        
+        if (imageType === "old") {
+            globOldPath = file_path;
+        } else {
+            globNewPath = file_path;
+        }
+
+        statusText.innerHTML = `<span class="spinner"></span> Starting AI detection...`;
+        updateSubmitButtonState();
+
+        // Step 2: Trigger Celery footprint detection task
+        console.log(`[${imageType}] Starting footprint detection with job_id: ${globJobId}`);
+        
+        let response;
+        try {
+            response = await fetch('/start-footprint-detection/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRF()
+                },
+                body: JSON.stringify({
+                    file_path: file_path,
+                    image_type: imageType,
+                    job_id: globJobId
+                })
+            });
+        } catch (fetchError) {
+            console.error(`[${imageType}] Fetch error:`, fetchError);
+            throw new Error(`Network error: ${fetchError.message}. Check server connection.`);
+        }
+
+        const result = await readJsonResponse(response);
+        
+        console.log(`[${imageType}] Footprint response:`, result);
+        
+        if (!response.ok) {
+            throw new Error(result.error || `Footprint task failed (${response.status})`);
+        }
+
+        globJobId = result.job_id;
+        console.log(`[${imageType}] Task started, job_id: ${globJobId}`);
+        statusText.innerHTML = `<span class="spinner-pulse"></span> Waiting for Celery worker...`;
+
+        await waitForFootprintComplete(imageType, index);
+
+    } catch (error) {
+        console.error(`[${imageType}] Footprint generation failure:`, error);
+        statusText.innerHTML = `<span style="color: #ef4444; font-weight: 700;">❌ Error: ${error.message}</span>`;
+        updateSubmitButtonState();
+        throw error;
+    }
+}
+
+// ===== POLISHING POLLING SYSTEM =====
+function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function readJsonResponse(response) {
+    const responseText = await response.text();
+    if (!responseText) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(responseText);
+    } catch (parseError) {
+        console.error("Invalid JSON response:", responseText);
+        throw new Error(`Invalid server response. Status: ${response.status}`);
+    }
+}
+
+async function waitForFootprintComplete(imageType, index) {
+    while (globJobId) {
+        try {
+            let response;
+            try {
+                response = await fetch(`/footprint-status/${globJobId}/`);
+            } catch (fetchErr) {
+                throw new Error(`Network error checking footprint status: ${fetchErr.message}`);
+            }
+            
+            const data = await readJsonResponse(response);
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Status check failed');
+            }
+
+            if (imageType === "old") {
+                updateTracker(1, data.old_status, data.old_progress);
+            } else {
+                updateTracker(1, data.old_status, data.old_progress);
+                updateTracker(2, data.new_status, data.new_progress);
+            }
+
+            oldReady = (data.old_status === "completed");
+            newReady = (data.new_status === "completed");
+            updateSubmitButtonState();
+
+            const statusKey = imageType === "old" ? "old_status" : "new_status";
+
+            if (data[statusKey] === "completed") {
+                return;
+            }
+
+            if (data[statusKey] === "failed") {
+                throw new Error(`${imageType} footprint generation failed`);
+            }
+
+        } catch (error) {
+            console.error("Footprint polling error:", error);
+            throw error;
+        }
+
+        await wait(1500);
+    }
+}
+
+function updateTracker(index, statusStr, progressVal) {
+    const fill = document.getElementById(`tracker-fill-${index}`);
+    const pct = document.getElementById(`tracker-pct-${index}`);
+    const statusText = document.getElementById(`tracker-status-${index}`);
+
+    if (!statusStr || statusStr === "pending" || statusStr === "processing") {
+        const displayVal = progressVal || 0;
+        fill.style.width = `${displayVal}%`;
+        pct.innerHTML = `${displayVal}%`;
+        statusText.innerHTML = `<span class="spinner-pulse"></span> Running model footprint detection... ${displayVal}%`;
+    } else if (statusStr === "completed") {
+        fill.style.width = "100%";
+        pct.innerHTML = "100%";
+        fill.style.background = "#00b98c";
+        statusText.innerHTML = `<span style="color: #00b98c; font-weight: 700;">✓ upload successfully! ✨</span>`;
+    } else if (statusStr === "failed") {
+        fill.style.width = "0%";
+        pct.innerHTML = "Failed";
+        statusText.innerHTML = `<span style="color: #ef4444; font-weight: 700;">❌ AI inference failed.</span>`;
+    }
+}
+
+function resetTracker(index) {
+    const tracker = document.getElementById(`footprint-tracker-${index}`);
+    const fill = document.getElementById(`tracker-fill-${index}`);
+    const pct = document.getElementById(`tracker-pct-${index}`);
+    const statusText = document.getElementById(`tracker-status-${index}`);
+
+    tracker.style.display = "none";
+    fill.style.width = "0%";
+    fill.style.background = "linear-gradient(90deg, #1677ff, #00b98c)";
+    pct.innerHTML = "0%";
+    statusText.innerHTML = "Initializing...";
+}
+
+function setWaitingTracker(index, message) {
+    const tracker = document.getElementById(`footprint-tracker-${index}`);
+    const fill = document.getElementById(`tracker-fill-${index}`);
+    const pct = document.getElementById(`tracker-pct-${index}`);
+    const statusText = document.getElementById(`tracker-status-${index}`);
+
+    tracker.style.display = "block";
+    fill.style.width = "0%";
+    fill.style.background = "linear-gradient(90deg, #1677ff, #00b98c)";
+    pct.innerHTML = "0%";
+    statusText.innerHTML = `<span class="spinner-pulse"></span> ${message}`;
+}
+
+function updateSubmitButtonState() {
+    const btn = document.getElementById("btn");
+
+    if (processingStarted) {
+        btn.disabled = true;
+        btn.classList.add("is-disabled");
+        btn.style.opacity = "";
+        btn.style.cursor = "";
+        btn.innerHTML = "Processing...";
+        return;
+    }
+
+    btn.classList.remove("is-disabled");
+
+    if (oldReady && newReady) {
+        btn.disabled = false;
+        btn.style.opacity = "";
+        btn.style.cursor = "";
+        btn.innerHTML = "Start Upload";
+    } else {
+        btn.disabled = true;
+        btn.style.opacity = "";
+        btn.style.cursor = "";
+
+        if (!selectedOldFile || !selectedNewFile) {
+            btn.innerHTML = "Select Old & New Images";
+        } else if (!globOldPath || !globNewPath) {
+            btn.innerHTML = "Upload Files......";
+        } else {
+            btn.innerHTML = "Upload Files......";
+        }
+    }
+}
+
+// ===== MAIN UPLOAD (CHANGE DETECTION FLOW) =====
+async function startUpload() {
+    if (processingStarted) {
+        return;
+    }
+
+    if (!globOldPath || !globNewPath || !globJobId) {
+        alert("Upload and generate footprints for both images first.");
+        return;
+    }
+
+    try {
+        processingStarted = true;
+        updateSubmitButtonState();
+
+        await checkProcessingAvailability(globJobId);
+
+        document.getElementById("progressWrap").style.display = "block";
+        document.getElementById("progressText").innerHTML = "Initializing change detection...";
+        document.getElementById("progressFill").style.width = "25%";
+
+        console.log("Kicking off main change detection processing with job_id:", globJobId);
+
+        let response;
+        try {
+            response = await fetch('/start-processing/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRF()
+                },
+                body: JSON.stringify({
+                    file1: globOldPath,
+                    file2: globNewPath,
+                    job_id: globJobId
+                })
+            });
+        } catch (fetchErr) {
+            throw new Error(`Network error starting processing: ${fetchErr.message}`);
+        }
+
+        const result = await readJsonResponse(response);
+
+        console.log("Start processing response:", result);
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Processing failed');
+        }
+
+        document.getElementById("progressFill").style.width = "60%";
+        document.getElementById("progressText").innerHTML = "Running change detection model...";
+
+        if (result.status === "SUCCESS" && result.result && result.result.id) {
+            window.location.href = "/result/?id=" + result.result.id;
+            return;
+        }
+
+        checkStatus(result.task_id);
+    } catch (error) {
+        console.error("Upload/processing error:", error);
+        alert("Error: " + error.message);
+        document.getElementById("progressWrap").style.display = "none";
+        processingStarted = false;
+        updateSubmitButtonState();
+    }
+}
+
+async function checkProcessingAvailability(jobId) {
+    try {
+        const url = jobId ? `/processing-availability/?job_id=${encodeURIComponent(jobId)}` : '/processing-availability/';
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCSRF()
+            }
+        });
+
+        const data = await readJsonResponse(response);
+        
+        if (!response.ok || data.available === false) {
+            throw new Error(data.error || 'Server busy. Please wait until current processing finishes.');
+        }
+    } catch (error) {
+        console.error('checkProcessingAvailability error:', error);
+        throw error;
+    }
+}
+
+async function simpleUpload(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        console.log(`Uploading file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+        
+        let response;
+        try {
+            response = await fetch('/upload-chunk/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCSRF()
+                }
+            });
+        } catch (fetchErr) {
+            throw new Error(`Network error uploading file: ${fetchErr.message}`);
+        }
+
+        console.log(`Upload response status: ${response.status}`);
+        
+        const data = await readJsonResponse(response);
+        
+        console.log(`Upload response data:`, data);
+        
+        if (!response.ok) {
+            const errorMsg = data.error || `Upload failed with status ${response.status}`;
+            throw new Error(errorMsg);
+        }
+        
+        if (!data.file_path) {
+            throw new Error('No file path returned from server');
+        }
+        
+        console.log(`File uploaded successfully: ${data.file_path}`);
+        return data.file_path;
+    } catch (error) {
+        console.error(`Upload failed for ${file.name}:`, error);
+        throw error;
+    }
+}
+
+function checkStatus(id) {
+    if (!id) {
+        alert("Processing started, but no task id was returned. Please refresh the result page after processing completes.");
+        processingStarted = false;
+        updateSubmitButtonState();
+        return;
+    }
+
+    let i = setInterval(() => {
+        fetch('/task-status/' + id + '/')
+            .then(r => r.json())
+            .then(d => {
+                if (d.status === "SUCCESS") {
+                    clearInterval(i);
+                    window.location.href = "/result/?id=" + d.result.id;
+                } else if (d.status === "FAILURE") {
+                    clearInterval(i);
+                    alert("Error: " + (d.error || "Processing failed"));
+                    document.getElementById("progressWrap").style.display = "none";
+                    processingStarted = false;
+                    updateSubmitButtonState();
+                }
+            });
+    }, 4000);
+}
+
+function getCSRF() {
+    const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (tokenInput) {
+        return tokenInput.value;
+    }
+
+    const cookieMatch = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+    return cookieMatch ? decodeURIComponent(cookieMatch[1]) : "";
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,533 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    :root {
+        --bg: #08110d;
+        --panel: #101a15;
+        --panel-2: #14231c;
+        --line: rgba(42, 231, 157, 0.28);
+        --line-strong: rgba(42, 231, 157, 0.62);
+        --text: #ecfff6;
+        --muted: rgba(236, 255, 246, 0.58);
+        --green: #2ae79d;
+        --green-dark: #06100c;
+        --red: #ff6868;
+        --amber: #ffd36a;
+    }
+
+    .result-container {
+        padding: 130px 16px 60px;
+        font-family: Arial, sans-serif;
+        color: var(--text);
+        position: relative;
+        z-index: 1;
+    }
+
+    main.result-main {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        display: grid;
+        gap: 18px;
+    }
+
+    .top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: stretch;
+    }
+
+    @media (max-width: 760px) {
+        .top {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        min-width: 0;
+    }
+
+    .summary {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .eyebrow {
+        color: var(--green);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    h1,
+    h2,
+    p {
+        margin-top: 0;
+        letter-spacing: 0;
+    }
+
+    h1 {
+        margin-bottom: 8px;
+        font-size: 30px;
+    }
+
+    h2 {
+        margin-bottom: 12px;
+        font-size: 22px;
+    }
+
+    p {
+        margin-bottom: 0;
+        color: var(--muted);
+        line-height: 1.5;
+    }
+
+    .file-name {
+        max-width: 100%;
+        margin-top: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .meta-panel {
+        min-width: min(330px, 100%);
+        display: grid;
+        gap: 14px;
+        align-content: center;
+    }
+
+    .status-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .status {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 8px 11px;
+        background: rgba(42, 231, 157, 0.07);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .status.done {
+        border-color: var(--line-strong);
+        color: var(--green);
+    }
+
+    .status.failed {
+        border-color: rgba(255, 104, 104, 0.35);
+        background: rgba(255, 104, 104, 0.08);
+        color: var(--red);
+    }
+
+    .count {
+        color: var(--text);
+        font-size: 14px;
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    a.button,
+    button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        border: 0;
+        border-radius: 6px;
+        padding: 11px 16px;
+        font: inherit;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.15s, opacity 0.15s, border-color 0.15s;
+    }
+
+    a.button:hover,
+    button:hover {
+        transform: translateY(-1px);
+    }
+
+    .primary {
+        background: var(--green);
+        color: var(--green-dark);
+    }
+
+    .secondary {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text);
+    }
+
+    .viewer-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 14px;
+    }
+
+    .viewer-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .viewer-tools button {
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        padding: 8px 12px;
+        font-weight: 700;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.15s, border-color 0.15s;
+    }
+
+    .viewer-tools button:hover {
+        background: rgba(42, 231, 157, 0.08);
+        border-color: var(--green);
+    }
+
+    .viewer {
+        position: relative;
+        height: min(70vh, 720px);
+        min-height: 420px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+            linear-gradient(rgba(236, 255, 246, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(236, 255, 246, 0.04) 1px, transparent 1px),
+            #050907;
+        background-size: 24px 24px;
+        touch-action: none;
+        user-select: none;
+    }
+
+    @media (max-width: 640px) {
+        .viewer {
+            height: 58vh;
+            min-height: 320px;
+        }
+
+        .viewer-head {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .viewer-tools {
+            justify-content: flex-start;
+        }
+    }
+
+    .viewer img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        max-width: none;
+        max-height: none;
+        width: auto;
+        height: auto;
+        transform: translate(-50%, -50%) translate(0px, 0px) scale(1);
+        transform-origin: center center;
+        cursor: grab;
+        will-change: transform;
+    }
+
+    .viewer.dragging img {
+        cursor: grabbing;
+    }
+
+    .viewer-empty {
+        min-height: 260px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-2);
+        padding: 24px;
+        text-align: center;
+    }
+
+    .hint {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 8px 10px;
+        background: rgba(16, 26, 21, 0.88);
+        color: var(--muted);
+        font-size: 12px;
+        pointer-events: none;
+    }
+
+    .error {
+        border: 1px solid rgba(255, 104, 104, 0.35);
+        background: rgba(255, 104, 104, 0.08);
+        color: var(--red);
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 14px;
+    }
+
+    .loading {
+        color: var(--amber);
+    }
+</style>
+
+<div class="result-container">
+    <main class="result-main">
+        <section class="top">
+            <div class="panel summary">
+                <div class="eyebrow">Satellite Analysis</div>
+                <h1>Prediction #{{ prediction.id }}</h1>
+                <p>Processed tree detection result and downloadable GIS outputs.</p>
+                <div class="file-name" title="{{ prediction.image.name }}">Uploaded file: {{ prediction.image.name }}
+                </div>
+            </div>
+
+            <aside class="panel meta-panel">
+                <div class="status-row">
+                    <span id="status"
+                        class="status {% if prediction.status == 'DONE' %}done{% elif prediction.status == 'FAILED' %}failed{% endif %}">
+                        {{ prediction.status }}
+                    </span>
+                    {% if prediction.status == 'DONE' %}
+                    <span class="count">{{ prediction.footprint_count }} features detected</span>
+                    {% endif %}
+                </div>
+                <div class="actions">
+                    <a class="button primary" href="{% url 'tree_home' %}">Upload Again</a>
+                    {% if prediction.status == 'DONE' and prediction.result %}
+                    <a class="button secondary" href="{% url 'tree_download_shapefile' prediction.id %}">Download
+                        Shapefile</a>
+                    {% if prediction.result_raster %}
+                    <a class="button secondary" href="{{ prediction.result_raster.url }}" download>Download Result
+                        TIFF</a>
+                    {% endif %}
+                    {% if prediction.stats_csv %}
+                    <a class="button secondary" href="{{ prediction.stats_csv.url }}" download>Download Area Stats
+                        (CSV)</a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </aside>
+        </section>
+
+        <section class="panel">
+            <div class="viewer-head">
+                <div>
+                    <div class="eyebrow">Result Preview</div>
+                    <h2>Tree & Vegetation Overlay</h2>
+                </div>
+                {% if prediction.status == 'DONE' and prediction.result %}
+                <div class="viewer-tools">
+                    <button class="secondary" type="button" id="zoom-out">Zoom Out</button>
+                    <button class="secondary" type="button" id="reset-view">Reset View</button>
+                    <button class="secondary" type="button" id="zoom-in">Zoom In</button>
+                </div>
+                {% endif %}
+            </div>
+
+            <div id="content">
+                {% if prediction.status == 'DONE' and prediction.result %}
+                <div class="viewer" id="viewer" aria-label="Zoomable result image viewer">
+                    <img id="preview" src="{{ prediction.result.url }}" alt="Tree and vegetation overlay result"
+                        draggable="false">
+                    <div class="hint">Mouse wheel zoom, left-click drag to move</div>
+                </div>
+                {% elif prediction.status == 'FAILED' %}
+                <div class="viewer-empty">
+                    <div>
+                        <h2>Processing Failed</h2>
+                        <p>The result image could not be created.</p>
+                        <div class="error">{{ prediction.error_message }}</div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="viewer-empty">
+                    <div>
+                        <h2 class="loading">Analysis Running</h2>
+                        <p>Processing is running in Celery. This page will update automatically.</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</div>
+
+{% if prediction.status == 'DONE' and prediction.result %}
+<script>
+    (function () {
+        const viewer = document.getElementById("viewer");
+        const image = document.getElementById("preview");
+        const zoomIn = document.getElementById("zoom-in");
+        const zoomOut = document.getElementById("zoom-out");
+        const resetView = document.getElementById("reset-view");
+        const state = {
+            baseScale: 1,
+            scale: 1,
+            minScale: 1,
+            maxScale: 8,
+            x: 0,
+            y: 0,
+            dragging: false,
+            startX: 0,
+            startY: 0,
+            originX: 0,
+            originY: 0
+        };
+
+        function applyTransform() {
+            image.style.transform = "translate(-50%, -50%) translate(" + state.x + "px, " + state.y + "px) scale(" + state.scale + ")";
+        }
+
+        function fitToViewer() {
+            const rect = viewer.getBoundingClientRect();
+            const naturalWidth = image.naturalWidth || image.width;
+            const naturalHeight = image.naturalHeight || image.height;
+            if (!rect.width || !rect.height || !naturalWidth || !naturalHeight) return;
+
+            image.style.width = naturalWidth + "px";
+            image.style.height = naturalHeight + "px";
+
+            const padding = 18;
+            const fitWidth = Math.max(1, rect.width - padding * 2) / naturalWidth;
+            const fitHeight = Math.max(1, rect.height - padding * 2) / naturalHeight;
+            state.baseScale = Math.min(fitWidth, fitHeight, 1);
+            state.minScale = state.baseScale;
+            state.scale = state.baseScale;
+            state.x = 0;
+            state.y = 0;
+            applyTransform();
+        }
+
+        function clampScale(value) {
+            return Math.max(state.minScale, Math.min(state.maxScale, value));
+        }
+
+        function zoomAt(delta, clientX, clientY) {
+            const nextScale = clampScale(state.scale * delta);
+            if (nextScale === state.scale) return;
+
+            const rect = viewer.getBoundingClientRect();
+            const pointerX = clientX - rect.left - rect.width / 2 - state.x;
+            const pointerY = clientY - rect.top - rect.height / 2 - state.y;
+            const ratio = nextScale / state.scale;
+
+            state.x -= pointerX * (ratio - 1);
+            state.y -= pointerY * (ratio - 1);
+            state.scale = nextScale;
+            applyTransform();
+        }
+
+        function zoomCenter(delta) {
+            const rect = viewer.getBoundingClientRect();
+            zoomAt(delta, rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
+
+        viewer.addEventListener("wheel", function (event) {
+            event.preventDefault();
+            zoomAt(event.deltaY < 0 ? 1.12 : 0.88, event.clientX, event.clientY);
+        }, { passive: false });
+
+        viewer.addEventListener("pointerdown", function (event) {
+            if (event.button !== 0) return;
+            state.dragging = true;
+            state.startX = event.clientX;
+            state.startY = event.clientY;
+            state.originX = state.x;
+            state.originY = state.y;
+            viewer.classList.add("dragging");
+            viewer.setPointerCapture(event.pointerId);
+        });
+
+        viewer.addEventListener("pointermove", function (event) {
+            if (!state.dragging) return;
+            state.x = state.originX + event.clientX - state.startX;
+            state.y = state.originY + event.clientY - state.startY;
+            applyTransform();
+        });
+
+        function stopDragging(event) {
+            if (!state.dragging) return;
+            state.dragging = false;
+            viewer.classList.remove("dragging");
+            if (viewer.hasPointerCapture(event.pointerId)) {
+                viewer.releasePointerCapture(event.pointerId);
+            }
+        }
+
+        viewer.addEventListener("pointerup", stopDragging);
+        viewer.addEventListener("pointercancel", stopDragging);
+        zoomIn.addEventListener("click", function () { zoomCenter(1.2); });
+        zoomOut.addEventListener("click", function () { zoomCenter(0.84); });
+        resetView.addEventListener("click", fitToViewer);
+
+        if (image.complete) {
+            fitToViewer();
+        } else {
+            image.addEventListener("load", fitToViewer);
+        }
+        window.addEventListener("resize", fitToViewer);
+    })();
+</script>
+{% endif %}
+
+{% if prediction.status != 'DONE' and prediction.status != 'FAILED' %}
+<script>
+    const statusUrl = "{% url 'tree_prediction_status' prediction.id %}";
+    const resultUrl = "{% url 'result_tree' prediction.id %}";
+
+    async function pollStatus() {
+        const response = await fetch(statusUrl);
+        const data = await response.json();
+        document.getElementById("status").textContent = data.status;
+
+        if (data.status === "DONE" || data.status === "FAILED") {
+            window.location.href = resultUrl;
+            return;
+        }
+
+        window.setTimeout(pollStatus, 5000);
+    }
+
+    window.setTimeout(pollStatus, 5000);
+</script>
+{% endif %}
+{% endblock %}

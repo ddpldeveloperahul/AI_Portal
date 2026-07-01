@@ -1,0 +1,1763 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .page-wrapper {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f4f6f9;
+        padding: 20px;
+    }
+
+    .container-custom {
+        max-width: 1000px;
+        width: 100%;
+    }
+
+    .card {
+        border-radius: 12px;
+        padding: 25px 35px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eaeaea;
+    }
+
+    .title {
+        font-weight: 600;
+        font-size: 1.75rem;
+        color: #2c3e50;
+    }
+
+    .image-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 700px;
+        height: clamp(460px, 62vh, 620px);
+        min-height: 0;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #f8f9fa;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+
+    .image-wrapper,
+    .image-wrapper * {
+        touch-action: none;
+    }
+
+    .image-wrapper.can-pan {
+        cursor: grab;
+    }
+
+    .image-wrapper.is-panning {
+        cursor: grabbing;
+    }
+
+    .image-wrapper.is-selecting {
+        cursor: crosshair;
+    }
+
+    .result-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        transition: transform 0.2s ease-in-out;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .image-wrapper.is-panning .result-img,
+    .image-wrapper.is-panning .image-mode {
+        transition: none !important;
+    }
+
+    .image-mode {
+        position: absolute;
+        inset: 0;
+        padding: 0;
+        transform-origin: center center;
+    }
+
+    .image-mode img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+    }
+
+    .compare-reveal {
+        position: absolute;
+        inset: 0;
+        clip-path: inset(0 0 50% 0);
+    }
+
+    .compare-zoom-layer {
+        position: absolute;
+        inset: 0;
+        transform-origin: center center;
+    }
+
+    .selection-box {
+        position: absolute;
+        border: 1px solid #1e90ff;
+        background: rgba(30, 144, 255, 0.18);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+        display: none;
+        pointer-events: none;
+        z-index: 30;
+    }
+
+    .btn-custom {
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+
+    .zoom-controls {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .zoom-controls .btn {
+        font-size: 0.85rem;
+        padding: 6px 14px;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+    .zoom-controls .btn.is-active {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #ffffff;
+    }
+
+    .slider-controls {
+        max-width: 700px;
+        margin: -6px auto 18px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 14px;
+        text-align: left;
+    }
+
+    .slider-card {
+        background: #f8fafc;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 10px 12px;
+    }
+
+    .slider-card label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+    }
+
+    .slider-card input[type="range"] {
+        width: 100%;
+    }
+
+    .overlay-picker-panel {
+        position: fixed;
+        top: 92px;
+        right: 20px;
+        width: 354px;
+        background: #ffffff;
+        border: 1px solid #e6e6e6;
+        border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        padding: 16px 16px 14px;
+        z-index: 999;
+    }
+
+    .overlay-picker-panel.is-hidden {
+        display: none;
+    }
+
+    .overlay-picker-panel h6 {
+        margin-bottom: 14px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .color-picker-shell {
+        display: grid;
+        grid-template-columns: 1fr 28px;
+        gap: 18px;
+        align-items: start;
+    }
+
+    .color-plane {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: crosshair;
+        border: 1px solid #cbd5e1;
+        background: hsl(240 100% 50%);
+    }
+
+    .color-plane::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+    }
+
+    .color-plane::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, #000000 0%, rgba(0, 0, 0, 0) 100%);
+    }
+
+    .picker-handle {
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.45);
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .hue-strip {
+        position: relative;
+        width: 28px;
+        height: 100%;
+        min-height: 260px;
+        border-radius: 999px;
+        border: 1px solid #cbd5e1;
+        cursor: ns-resize;
+        background: linear-gradient(to bottom,
+                rgb(255, 0, 0) 0%,
+                rgb(255, 255, 0) 17%,
+                rgb(0, 255, 0) 33%,
+                rgb(0, 255, 255) 50%,
+                rgb(0, 0, 255) 67%,
+                rgb(255, 0, 255) 83%,
+                rgb(255, 0, 0) 100%);
+    }
+
+    .hue-handle {
+        position: absolute;
+        left: 50%;
+        width: 30px;
+        height: 8px;
+        border-radius: 999px;
+        background: #ffffff;
+        border: 1px solid rgba(15, 23, 42, 0.35);
+        transform: translate(-50%, -50%);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
+        pointer-events: none;
+    }
+
+    .bottom-links .btn {
+        font-size: 0.9rem;
+        padding: 6px 20px;
+        color: #555;
+        border-color: #ccc;
+    }
+
+    .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+
+    .layer-panel {
+        position: fixed;
+        top: 92px;
+        left: 20px;
+        width: min(220px, calc(100vw - 40px));
+        background: #ffffff;
+        padding: 14px;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        border: 1px solid #e6e6e6;
+        z-index: 999;
+        text-align: left;
+    }
+
+    .layer-panel.is-hidden {
+        display: none;
+    }
+
+    .layer-panel h6 {
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .layer-item {
+        margin-bottom: 10px;
+    }
+
+    .layer-item.is-draggable {
+        padding: 8px 10px;
+        margin-left: -10px;
+        margin-right: -10px;
+        border: 1px dashed transparent;
+        border-radius: 8px;
+        cursor: grab;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .layer-item.is-draggable:hover {
+        background: #f8f9fa;
+        border-color: #d7dee6;
+    }
+
+    .layer-item.is-dragging {
+        opacity: 0.55;
+    }
+
+    .layer-item.drag-target {
+        background: #eef5ff;
+        border-color: #86b7fe;
+    }
+
+    .layer-panel label {
+        display: flex;
+        align-items: flex-start;
+        gap: 7px;
+        margin-bottom: 2px;
+        cursor: pointer;
+        line-height: 1.25;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .layer-file-type {
+        display: block;
+        margin-bottom: 0;
+        margin-left: 28px;
+        color: #6c757d;
+        font-size: 0.7rem;
+        line-height: 1.3;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .layer-panel small {
+        color: #6c757d;
+        display: block;
+        margin-top: 8px;
+    }
+
+    #sliderLine {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        height: 3px;
+        width: 100%;
+        background: #dc3545;
+        cursor: ns-resize;
+        z-index: 10;
+    }
+
+    @media (max-width: 1200px) {
+        .layer-panel {
+            position: static;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .page-wrapper {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .image-wrapper {
+            max-width: 100%;
+            height: 420px;
+        }
+
+        .slider-controls {
+            grid-template-columns: 1fr;
+            max-width: 100%;
+        }
+
+        .overlay-picker-panel {
+            position: static;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .color-picker-shell {
+            grid-template-columns: 1fr 28px;
+        }
+
+        .hue-strip {
+            min-height: 240px;
+        }
+    }
+
+    .page-wrapper {
+        position: relative;
+        min-height: calc(100vh - 72px);
+        align-items: stretch;
+        justify-content: center;
+        gap: 22px;
+        padding: 26px clamp(18px, 3vw, 36px) 26px clamp(318px, 23vw, 360px);
+        background:
+            linear-gradient(90deg, rgba(8, 18, 33, 0.93), rgba(11, 26, 46, 0.48) 18%, rgba(246, 249, 252, 0.96) 32%, rgba(246, 249, 252, 0.96) 68%, rgba(11, 26, 46, 0.48) 82%, rgba(8, 18, 33, 0.93)),
+            radial-gradient(circle at 18% 12%, rgba(0, 245, 255, 0.16), transparent 25%),
+            radial-gradient(circle at 84% 78%, rgba(0, 185, 140, 0.18), transparent 28%),
+            #f4f8fb;
+        overflow: hidden;
+    }
+
+    .page-wrapper::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(0, 181, 216, 0.09) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 181, 216, 0.09) 1px, transparent 1px);
+        background-size: 58px 58px;
+        mask-image: linear-gradient(90deg, #000 0%, transparent 34%, transparent 66%, #000 100%);
+        pointer-events: none;
+    }
+
+    .container-custom {
+        position: relative;
+        z-index: 2;
+        max-width: min(1080px, calc(100vw - clamp(360px, 27vw, 420px)));
+    }
+
+    .card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(13, 148, 136, 0.18);
+        border-radius: 8px;
+        padding: 0;
+        background: rgba(255, 255, 255, 0.94) !important;
+        box-shadow: 0 24px 70px rgba(9, 23, 42, 0.18);
+    }
+
+    .card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 4px;
+        background: linear-gradient(90deg, #1677ff, #00d7e6, #00b98c);
+    }
+
+    .result-topbar {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(120px, 1fr) minmax(0, 720px) minmax(280px, 1fr);
+        align-items: center;
+        gap: 18px;
+        padding: 24px 28px 18px;
+        border-bottom: 1px solid #e4edf4;
+        background:
+            linear-gradient(135deg, rgba(12, 25, 44, 0.98), rgba(13, 63, 78, 0.9)),
+            #0c192c;
+        text-align: center;
+    }
+
+    .result-heading {
+        grid-column: 2;
+        min-width: 0;
+    }
+
+    .result-eyebrow {
+        color: #73e5ee;
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .title {
+        margin: 0;
+        color: #ffffff;
+        font-family: 'Orbitron', monospace;
+        font-size: clamp(1.35rem, 2.4vw, 2rem);
+        letter-spacing: 0;
+    }
+
+    .result-subtitle {
+        margin: 8px 0 0;
+        color: rgba(225, 244, 252, 0.76);
+        font-size: 0.92rem;
+    }
+
+    .result-status-grid {
+        grid-column: 3;
+        justify-self: end;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        gap: 10px;
+        min-width: 280px;
+    }
+
+    .status-tile {
+        border: 1px solid rgba(115, 229, 238, 0.18);
+        border-radius: 8px;
+        padding: 10px 12px;
+        background:
+            linear-gradient(135deg, rgba(12, 25, 44, 0.82), rgba(13, 63, 78, 0.82)),
+            #0c192c;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+        text-align: left;
+    }
+
+    .status-tile span {
+        display: block;
+        color: rgba(225, 244, 252, 0.66);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .status-tile strong {
+        color: #ffffff;
+        font-size: 0.95rem;
+    }
+
+    .result-workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 24px 34px 26px;
+    }
+
+    .image-wrapper {
+        max-width: 760px;
+        height: clamp(430px, 58vh, 610px);
+        border-radius: 8px;
+        border: 1px solid #cbd8e3;
+        background:
+            linear-gradient(45deg, #f7fafc 25%, transparent 25%),
+            linear-gradient(-45deg, #f7fafc 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #f7fafc 75%),
+            linear-gradient(-45deg, transparent 75%, #f7fafc 75%),
+            #eef4f8;
+        background-size: 28px 28px;
+        background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7), 0 18px 45px rgba(15, 23, 42, 0.12);
+    }
+
+    .image-wrapper::before,
+    .image-wrapper::after {
+        content: "";
+        position: absolute;
+        z-index: 25;
+        pointer-events: none;
+    }
+
+    .image-wrapper::before {
+        inset: 14px;
+        border: 1px solid rgba(0, 217, 230, 0.18);
+    }
+
+    .image-wrapper::after {
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 1px;
+        background: rgba(0, 185, 140, 0.2);
+        box-shadow: -380px 0 0 rgba(0, 185, 140, 0.09), 380px 0 0 rgba(0, 185, 140, 0.09);
+    }
+
+    .result-img {
+        filter: saturate(1.05) contrast(1.04);
+    }
+
+    .control-deck {
+        max-width: 760px;
+        margin: 18px auto 0;
+        display: grid;
+        gap: 14px;
+    }
+
+    .slider-controls {
+        max-width: none;
+        margin: 0;
+        gap: 12px;
+    }
+
+    .slider-card {
+        border-radius: 8px;
+        border: 1px solid #d8e3ec;
+        background: #f8fbfd;
+        padding: 12px 14px;
+    }
+
+    .slider-card label {
+        color: #223247;
+    }
+
+    .slider-card input[type="range"] {
+        accent-color: #00a7d8;
+    }
+
+    .zoom-controls {
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 0 !important;
+    }
+
+    .zoom-controls .btn,
+    .bottom-links .btn {
+        border-radius: 6px;
+        padding: 9px 14px;
+        font-weight: 700;
+    }
+
+    .download-grid {
+        max-width: 760px;
+        margin: 18px auto 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .download-grid .btn-custom {
+        border-radius: 8px;
+        padding: 15px 16px;
+        border: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+    }
+
+    .download-grid .btn-success {
+        background: linear-gradient(135deg, #16804f, #00a876);
+    }
+
+    .download-grid .btn-primary {
+        background: linear-gradient(135deg, #0aa7d8, #00d7e6);
+        color: #04131d;
+    }
+
+    .bottom-links {
+        padding-top: 14px;
+        border-top: 1px solid #edf2f6;
+    }
+
+    .layer-panel {
+        z-index: 3;
+        top: 110px;
+        left: clamp(24px, 2.2vw, 36px);
+        width: 270px;
+        max-height: calc(100vh - 140px);
+        overflow: auto;
+        border-radius: 8px;
+        border: 1px solid rgba(115, 229, 238, 0.18);
+        background: rgba(10, 22, 39, 0.9);
+        color: #e7f8ff;
+        box-shadow: 0 22px 50px rgba(4, 13, 26, 0.24);
+        backdrop-filter: blur(14px);
+    }
+
+    .layer-panel h6 {
+        color: #8ceaf1;
+        font-family: 'Space Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .layer-panel label {
+        color: #f4fbff;
+        font-weight: 800;
+    }
+
+    .layer-panel input {
+        accent-color: #00d7e6;
+        margin-top: 3px;
+    }
+
+    .layer-file-type {
+        color: rgba(231, 248, 255, 0.62);
+    }
+
+    .layer-item.is-draggable:hover,
+    .layer-item.drag-target {
+        background: rgba(0, 215, 230, 0.08);
+        border-color: rgba(0, 215, 230, 0.32);
+    }
+
+    .overlay-picker-panel {
+        border-radius: 8px;
+        border: 1px solid #d8e3ec;
+    }
+
+    #sliderLine {
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #ff375f, transparent);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.4), 0 0 18px rgba(255,55,95,0.55);
+    }
+
+    @media (max-width: 1200px) {
+        .page-wrapper {
+            padding: 18px;
+        }
+
+        .layer-panel {
+            position: relative;
+            top: auto;
+            left: auto;
+            width: 100%;
+        }
+
+        .result-topbar {
+            grid-template-columns: 1fr;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .result-heading,
+        .result-status-grid {
+            grid-column: 1;
+            width: 100%;
+            min-width: 0;
+            justify-self: center;
+        }
+
+        .result-status-grid {
+            max-width: 520px;
+        }
+
+        .result-workspace {
+            padding: 18px;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .download-grid,
+        .slider-controls,
+        .result-status-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .image-wrapper {
+            height: 360px;
+        }
+
+        .result-topbar {
+            padding: 22px 18px 18px;
+        }
+
+        .title {
+            font-size: clamp(1.1rem, 7vw, 1.55rem);
+        }
+
+        .result-subtitle {
+            font-size: 0.84rem;
+        }
+    }
+</style>
+
+<div class="page-wrapper">
+    <div id="layerPanel" class="layer-panel">
+        <h6>Layers</h6>
+        <small style="margin-top: 0; margin-bottom: 10px;"></small>
+        <div id="phaseLayerList">
+        <div class="layer-item is-draggable" data-phase-layer="back" draggable="true">
+            <label><input type="checkbox" id="chkBack" checked> <span>Phase 1</span></label>
+            <span class="layer-file-type">{{ img23_name }}</span>
+        </div>
+        <div class="layer-item is-draggable" data-phase-layer="front" draggable="true">
+            <label><input type="checkbox" id="chkFront" checked> <span>Phase 2</span></label>
+            <span class="layer-file-type">{{ img25_name }}</span>
+        </div>
+        </div>
+        <div class="layer-item">
+            <label><input type="checkbox" id="chkBlue" checked> <span>Complete Detection</span></label>
+            <span class="layer-file-type">{{ result_shp_name }}</span>
+        </div>
+        {% comment %} <button type="button" class="btn btn-sm btn-success mt-2" onclick="applyLayers()">Apply
+            Selection</button> {% endcomment %}
+        {% comment %} <small>Checkbox change hote hi preview update ho jayega.</small> {% endcomment %}
+    </div>
+
+    <div id="overlayPickerPanel" class="overlay-picker-panel is-hidden">
+        <h6>Overlay RGB</h6>
+        <div class="color-picker-shell">
+            <div id="colorPlane" class="color-plane">
+                <div id="colorPlaneHandle" class="picker-handle"></div>
+            </div>
+            <div id="hueStrip" class="hue-strip">
+                <div id="hueHandle" class="hue-handle"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-custom">
+        <div class="card bg-white text-center">
+            <div class="result-topbar">
+                <div class="result-heading">
+                    <div class="result-eyebrow">Analysis Complete</div>
+                    <h2 class="title">Change Detection Result</h2>
+                    <p class="result-subtitle">Review detected footprint changes, tune overlays, compare phases, and export GIS-ready outputs.</p>
+                </div>
+                <div class="result-status-grid">
+                    <div class="status-tile">
+                        <span>Threshold</span>
+                        <strong>0.6</strong>
+                    </div>
+                    <div class="status-tile">
+                        <span>Mode</span>
+                        <strong>Hybrid GIS</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-workspace">
+            <div class="image-wrapper mb-0 no-select" id="wrapper">
+                <img id="zoomImage" src="{{ result_png }}" class="result-img" draggable="false">
+
+                <div id="layerBox" class="image-mode" style="display:none;">
+                    <img id="backLayer" src="{{ img23 }}" class="result-img" style="display:none;" draggable="false">
+                    <img id="frontLayer" src="{{ img25 }}" class="result-img" style="display:none;" draggable="false">
+                    <img id="blueLayer" src="{{ result_png }}" class="result-img" style="display:none; opacity:0.45;"
+                        draggable="false">
+                </div>
+
+                <div id="compareBox" class="image-mode" style="display:none;">
+                    <div id="compareBaseStage" class="compare-zoom-layer">
+                        <img id="baseImgCompare" src="{{ img23 }}" class="result-img" draggable="false">
+                    </div>
+                    <div id="compareReveal" class="compare-reveal">
+                        <div id="compareRevealStage" class="compare-zoom-layer">
+                            <img id="compareRevealBack" src="{{ img23 }}" class="result-img" style="display:none;"
+                                draggable="false">
+                            <img id="compareRevealFront" src="{{ img25 }}" class="result-img" style="display:none;"
+                                draggable="false">
+                            <img id="compareRevealBlue" src="{{ result_png }}" class="result-img"
+                                style="display:none; opacity:0.35; pointer-events:none;" draggable="false">
+                        </div>
+                    </div>
+                    <div id="sliderLine"></div>
+                </div>
+
+                <div id="selectionBox" class="selection-box"></div>
+            </div>
+
+            <div class="control-deck">
+            <div class="slider-controls">
+                <div class="slider-card">
+                    <label for="blueIntensitySlider">
+                        <span>Color Intensity</span>
+                        <span id="blueIntensityValue">45%</span>
+                    </label>
+                    <input type="range" id="blueIntensitySlider" min="0" max="100" value="45">
+                </div>
+                <div class="slider-card">
+                    <label for="zoomSlider">
+                        <span>Zoom</span>
+                        <span id="zoomValue">100%</span>
+                    </label>
+                    <input type="range" id="zoomSlider" min="100" max="800" value="100" step="10">
+                </div>
+            </div>
+
+            <div class="zoom-controls mb-4">
+                <button class="btn btn-outline-secondary" type="button" onclick="resetImage()">Reset</button>
+                <span class="mx-2"></span>
+                <button id="selectZoomBtn" class="btn btn-outline-primary" type="button" onclick="toggleSelectZoom()">Select Zoom</button>
+                <button class="btn btn-outline-info" type="button" onclick="toggleOverlayPicker()">Change Color</button>
+                <button class="btn btn-dark" type="button" onclick="startCompare()">Compare</button>
+            </div>
+            </div>
+
+            <div class="download-grid mb-4">
+                <a href="{{ result_tif }}" download class="btn btn-success btn-custom">
+                    Download TIFF
+                </a>
+                <a href="{{ result_shp }}" download class="btn btn-primary btn-custom">
+                    Download Shapefile (ZIP)
+                </a>
+            </div>
+
+            <div class="bottom-links d-flex justify-content-center gap-3 mt-2">
+                <a href="/" class="btn btn-outline-secondary">
+                    Upload Again
+                </a>
+                <a href="{% url 'spatial_join' %}?file={{ result_shp }}" class="btn btn-outline-secondary">
+                    Go to Spatial Join
+                </a>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let scale = 1;
+    let panX = 0;
+    let panY = 0;
+    let isSliderDragging = false;
+    let isPanning = false;
+    let panStartX = 0;
+    let panStartY = 0;
+    let panOriginX = 0;
+    let panOriginY = 0;
+    let activePanPointerId = null;
+    let isSelecting = false;
+    let selectionStartX = 0;
+    let selectionStartY = 0;
+    let activeSelectionPointerId = null;
+    let selectZoomEnabled = false;
+
+    const resultImg = "{{ result_png }}";
+    const backImg = "{{ img23 }}";
+    const frontImg = "{{ img25 }}";
+
+    const zoomImage = document.getElementById("zoomImage");
+    const layerBox = document.getElementById("layerBox");
+    const compareBox = document.getElementById("compareBox");
+    const compareBaseStage = document.getElementById("compareBaseStage");
+    const backLayer = document.getElementById("backLayer");
+    const frontLayer = document.getElementById("frontLayer");
+    const blueLayer = document.getElementById("blueLayer");
+    const baseImgCompare = document.getElementById("baseImgCompare");
+    const compareReveal = document.getElementById("compareReveal");
+    const compareRevealStage = document.getElementById("compareRevealStage");
+    const compareRevealBack = document.getElementById("compareRevealBack");
+    const compareRevealFront = document.getElementById("compareRevealFront");
+    const compareRevealBlue = document.getElementById("compareRevealBlue");
+    const sliderLine = document.getElementById("sliderLine");
+    const selectionBox = document.getElementById("selectionBox");
+    const wrapper = document.getElementById("wrapper");
+    const layerPanel = document.getElementById("layerPanel");
+    const overlayPickerPanel = document.getElementById("overlayPickerPanel");
+    const selectZoomBtn = document.getElementById("selectZoomBtn");
+    const phaseLayerList = document.getElementById("phaseLayerList");
+    const draggablePhaseItems = Array.from(document.querySelectorAll("[data-phase-layer]"));
+    const chkBack = document.getElementById("chkBack");
+    const chkFront = document.getElementById("chkFront");
+    const chkBlue = document.getElementById("chkBlue");
+    const blueIntensitySlider = document.getElementById("blueIntensitySlider");
+    const blueIntensityValue = document.getElementById("blueIntensityValue");
+    const zoomSlider = document.getElementById("zoomSlider");
+    const zoomValue = document.getElementById("zoomValue");
+    const colorPlane = document.getElementById("colorPlane");
+    const colorPlaneHandle = document.getElementById("colorPlaneHandle");
+    const hueStrip = document.getElementById("hueStrip");
+    const hueHandle = document.getElementById("hueHandle");
+
+    let blueOpacity = 0.45;
+    let overlayPreviewSrc = resultImg;
+    let overlayColor = { r: 255, g: 0, b: 0 };
+    let overlayHsv = { h: 0, s: 100, v: 100 };
+    let activePickerTarget = null;
+    let compareSplitRatio = 0.5;
+    let draggedPhaseItem = null;
+
+    const overlaySourceImage = new Image();
+    overlaySourceImage.addEventListener("load", recolorOverlayImage);
+    overlaySourceImage.src = resultImg;
+
+    function setWrapperAspectRatio() {
+    }
+
+    function getCurrentModeElement() {
+        if (compareBox.style.display === "block") {
+            return compareBox;
+        }
+
+        if (layerBox.style.display === "block") {
+            return layerBox;
+        }
+
+        return zoomImage;
+    }
+
+    function clampPanOffsets() {
+        const maxPanX = Math.max(0, ((scale - 1) * wrapper.clientWidth) / 2);
+        const maxPanY = Math.max(0, ((scale - 1) * wrapper.clientHeight) / 2);
+        panX = clamp(panX, -maxPanX, maxPanX);
+        panY = clamp(panY, -maxPanY, maxPanY);
+    }
+
+    function updatePanCursor() {
+        const canPan = scale > 1;
+        wrapper.classList.toggle("can-pan", canPan && !isPanning);
+        wrapper.classList.toggle("is-panning", isPanning);
+        wrapper.classList.toggle("is-selecting", isSelecting);
+    }
+
+    function updateSelectZoomButton() {
+        selectZoomBtn.classList.toggle("is-active", selectZoomEnabled);
+        selectZoomBtn.setAttribute("aria-pressed", selectZoomEnabled ? "true" : "false");
+    }
+
+    function getBlueDisplaySrc() {
+        return overlayPreviewSrc || resultImg;
+    }
+
+    function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    function hsvToRgb(h, s, v) {
+        const hue = ((h % 360) + 360) % 360;
+        const saturation = clamp(s, 0, 100) / 100;
+        const value = clamp(v, 0, 100) / 100;
+        const chroma = value * saturation;
+        const huePrime = hue / 60;
+        const x = chroma * (1 - Math.abs((huePrime % 2) - 1));
+        let red = 0;
+        let green = 0;
+        let blue = 0;
+
+        if (huePrime >= 0 && huePrime < 1) {
+            red = chroma; green = x; blue = 0;
+        } else if (huePrime < 2) {
+            red = x; green = chroma; blue = 0;
+        } else if (huePrime < 3) {
+            red = 0; green = chroma; blue = x;
+        } else if (huePrime < 4) {
+            red = 0; green = x; blue = chroma;
+        } else if (huePrime < 5) {
+            red = x; green = 0; blue = chroma;
+        } else {
+            red = chroma; green = 0; blue = x;
+        }
+
+        const match = value - chroma;
+        return {
+            r: Math.round((red + match) * 255),
+            g: Math.round((green + match) * 255),
+            b: Math.round((blue + match) * 255),
+        };
+    }
+
+    function updateOverlayColorLabels() {
+        colorPlane.style.backgroundColor = `hsl(${overlayHsv.h} 100% 50%)`;
+        colorPlaneHandle.style.left = `${overlayHsv.s}%`;
+        colorPlaneHandle.style.top = `${100 - overlayHsv.v}%`;
+        hueHandle.style.left = "50%";
+        hueHandle.style.top = `${(overlayHsv.h / 360) * 100}%`;
+    }
+
+    function updateOverlaySources() {
+        const tintedSrc = getBlueDisplaySrc();
+        blueLayer.src = tintedSrc;
+        compareRevealBlue.src = tintedSrc;
+
+        if (zoomImage.dataset.currentLayer === "blue") {
+            zoomImage.src = tintedSrc;
+        }
+
+        if (zoomImage.dataset.currentLayer === "stack" || layerBox.style.display === "block") {
+            applyLayers();
+        }
+    }
+
+    function recolorOverlayImage() {
+        if (!overlaySourceImage.naturalWidth || !overlaySourceImage.naturalHeight) {
+            return;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = overlaySourceImage.naturalWidth;
+        canvas.height = overlaySourceImage.naturalHeight;
+
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+        context.drawImage(overlaySourceImage, 0, 0);
+
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const pixels = imageData.data;
+
+        for (let index = 0; index < pixels.length; index += 4) {
+            const red = pixels[index];
+            const green = pixels[index + 1];
+            const blue = pixels[index + 2];
+            const alpha = pixels[index + 3];
+
+            if (alpha === 0) {
+                continue;
+            }
+
+            const maxChannel = Math.max(red, green, blue);
+            const minChannel = Math.min(red, green, blue);
+            const isWhiteBackground = maxChannel >= 245 && (maxChannel - minChannel) <= 12;
+
+            if (isWhiteBackground || maxChannel === 0) {
+                pixels[index + 3] = 0;
+                continue;
+            }
+
+            const intensity = maxChannel / 255;
+            pixels[index] = Math.round(overlayColor.r * intensity);
+            pixels[index + 1] = Math.round(overlayColor.g * intensity);
+            pixels[index + 2] = Math.round(overlayColor.b * intensity);
+            pixels[index + 3] = Math.round(alpha * intensity);
+        }
+
+        context.putImageData(imageData, 0, 0);
+        overlayPreviewSrc = canvas.toDataURL("image/png");
+        updateOverlayColorLabels();
+        updateOverlaySources();
+        applyBlueIntensity();
+    }
+
+    function syncColorFromHsv() {
+        overlayColor = hsvToRgb(overlayHsv.h, overlayHsv.s, overlayHsv.v);
+        recolorOverlayImage();
+    }
+
+    function updateColorPlaneFromPointer(event) {
+        const rect = colorPlane.getBoundingClientRect();
+        const x = clamp(event.clientX - rect.left, 0, rect.width);
+        const y = clamp(event.clientY - rect.top, 0, rect.height);
+        overlayHsv.s = Math.round((x / rect.width) * 100);
+        overlayHsv.v = Math.round(100 - (y / rect.height) * 100);
+        syncColorFromHsv();
+    }
+
+    function updateHueFromPointer(event) {
+        const rect = hueStrip.getBoundingClientRect();
+        const y = clamp(event.clientY - rect.top, 0, rect.height);
+        overlayHsv.h = Math.round((y / rect.height) * 360);
+
+        if (overlayHsv.h >= 360) {
+            overlayHsv.h = 359;
+        }
+
+        syncColorFromHsv();
+    }
+
+    function resetOverlayColor() {
+        overlayHsv = { h: 0, s: 100, v: 100 };
+        syncColorFromHsv();
+    }
+
+    function applyScale() {
+        clampPanOffsets();
+        const transformValue = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        zoomImage.style.transform = transformValue;
+        layerBox.style.transform = transformValue;
+        compareBox.style.transform = "none";
+        compareBaseStage.style.transform = transformValue;
+        compareRevealStage.style.transform = transformValue;
+        zoomValue.textContent = `${Math.round(scale * 100)}%`;
+        zoomSlider.value = Math.round(scale * 100);
+        updatePanCursor();
+
+        if (compareBox.style.display === "block") {
+            updateSliderFromRatio();
+        }
+    }
+
+    function getReferenceImageElement() {
+        if (compareBox.style.display === "block") {
+            return baseImgCompare;
+        }
+
+        if (layerBox.style.display === "block") {
+            if (backLayer.style.display !== "none") {
+                return backLayer;
+            }
+
+            if (frontLayer.style.display !== "none") {
+                return frontLayer;
+            }
+
+            if (blueLayer.style.display !== "none") {
+                return blueLayer;
+            }
+        }
+
+        return zoomImage;
+    }
+
+    function getActiveViewportRect() {
+        return getCurrentModeElement().getBoundingClientRect();
+    }
+
+    function getFittedImageBounds(imageElement) {
+        const naturalWidth = imageElement.naturalWidth || wrapper.clientWidth;
+        const naturalHeight = imageElement.naturalHeight || wrapper.clientHeight;
+        const wrapperWidth = wrapper.clientWidth;
+        const wrapperHeight = wrapper.clientHeight;
+        const fitScale = Math.min(wrapperWidth / naturalWidth, wrapperHeight / naturalHeight);
+        const width = naturalWidth * fitScale;
+        const height = naturalHeight * fitScale;
+        const left = (wrapperWidth - width) / 2;
+        const top = (wrapperHeight - height) / 2;
+
+        return {
+            left,
+            top,
+            right: left + width,
+            bottom: top + height,
+            width,
+            height,
+        };
+    }
+
+    function getVisibleCompareBounds() {
+        const fitted = getFittedImageBounds(baseImgCompare);
+        const wrapperCenterX = wrapper.clientWidth / 2;
+        const wrapperCenterY = wrapper.clientHeight / 2;
+
+        const scaledLeft = wrapperCenterX + panX + ((fitted.left - wrapperCenterX) * scale);
+        const scaledRight = wrapperCenterX + panX + ((fitted.right - wrapperCenterX) * scale);
+        const scaledTop = wrapperCenterY + panY + ((fitted.top - wrapperCenterY) * scale);
+        const scaledBottom = wrapperCenterY + panY + ((fitted.bottom - wrapperCenterY) * scale);
+
+        return {
+            left: clamp(scaledLeft, 0, wrapper.clientWidth),
+            right: clamp(scaledRight, 0, wrapper.clientWidth),
+            top: clamp(scaledTop, 0, wrapper.clientHeight),
+            bottom: clamp(scaledBottom, 0, wrapper.clientHeight),
+        };
+    }
+
+    function getWrapperLocalPoint(clientX, clientY) {
+        const wrapperRect = wrapper.getBoundingClientRect();
+        return {
+            x: clientX - wrapperRect.left,
+            y: clientY - wrapperRect.top,
+        };
+    }
+
+    function hideSelectionBox() {
+        selectionBox.style.display = "none";
+    }
+
+    function updateSelectionBox(currentX, currentY) {
+        const left = Math.min(selectionStartX, currentX);
+        const top = Math.min(selectionStartY, currentY);
+        const width = Math.abs(currentX - selectionStartX);
+        const height = Math.abs(currentY - selectionStartY);
+
+        selectionBox.style.display = width > 0 && height > 0 ? "block" : "none";
+        selectionBox.style.left = `${left}px`;
+        selectionBox.style.top = `${top}px`;
+        selectionBox.style.width = `${width}px`;
+        selectionBox.style.height = `${height}px`;
+    }
+
+    function stopSelection(pointerId = null) {
+        if (pointerId !== null && activeSelectionPointerId !== null && pointerId !== activeSelectionPointerId) {
+            return;
+        }
+
+        if (activeSelectionPointerId !== null && wrapper.hasPointerCapture && wrapper.hasPointerCapture(activeSelectionPointerId)) {
+            wrapper.releasePointerCapture(activeSelectionPointerId);
+        }
+
+        isSelecting = false;
+        activeSelectionPointerId = null;
+        hideSelectionBox();
+        updatePanCursor();
+    }
+
+    function toggleSelectZoom(forceValue = null) {
+        selectZoomEnabled = typeof forceValue === "boolean" ? forceValue : !selectZoomEnabled;
+
+        if (!selectZoomEnabled) {
+            stopSelection();
+        }
+
+        updateSelectZoomButton();
+    }
+
+    function zoomToSelection(endX, endY) {
+        const minX = Math.min(selectionStartX, endX);
+        const maxX = Math.max(selectionStartX, endX);
+        const minY = Math.min(selectionStartY, endY);
+        const maxY = Math.max(selectionStartY, endY);
+        const width = maxX - minX;
+        const height = maxY - minY;
+
+        if (width < 24 || height < 24) {
+            stopSelection();
+            return;
+        }
+
+        const wrapperCenterX = wrapper.clientWidth / 2;
+        const wrapperCenterY = wrapper.clientHeight / 2;
+        const selectionCenterX = minX + (width / 2);
+        const selectionCenterY = minY + (height / 2);
+        const zoomFactor = Math.min(wrapper.clientWidth / width, wrapper.clientHeight / height);
+        const nextScale = clamp(scale * zoomFactor, 1, 8);
+        const contentCenterX = (selectionCenterX - wrapperCenterX - panX) / scale;
+        const contentCenterY = (selectionCenterY - wrapperCenterY - panY) / scale;
+
+        scale = nextScale;
+        panX = -contentCenterX * nextScale;
+        panY = -contentCenterY * nextScale;
+        stopSelection();
+        applyScale();
+        toggleSelectZoom(false);
+    }
+
+    function applyBlueIntensity() {
+        const activeOpacity = chkBlue.checked ? blueOpacity : 0;
+        blueLayer.style.opacity = `${activeOpacity}`;
+        compareRevealBlue.style.opacity = `${activeOpacity}`;
+        blueIntensityValue.textContent = `${Math.round(blueOpacity * 100)}%`;
+    }
+
+    function resetZoom() {
+        scale = 1;
+        panX = 0;
+        panY = 0;
+        activePanPointerId = null;
+        applyScale();
+    }
+
+    function setScale(nextScale) {
+        scale = clamp(nextScale, 1, 8);
+        applyScale();
+    }
+
+    function zoomIn() {
+        setScale(scale + 0.2);
+    }
+
+    function zoomOut() {
+        setScale(scale - 0.2);
+    }
+
+    function getSelectedLayers() {
+        const layers = [];
+
+        if (chkBack.checked) {
+            layers.push({ name: "back", src: backImg });
+        }
+
+        if (chkFront.checked) {
+            layers.push({ name: "front", src: frontImg });
+        }
+
+        if (chkBlue.checked) {
+            layers.push({ name: "blue", src: resultImg });
+        }
+
+        return layers;
+    }
+
+    function getPhaseLayerOrder() {
+        return Array.from(phaseLayerList.querySelectorAll("[data-phase-layer]"))
+            .map((item) => item.dataset.phaseLayer);
+    }
+
+    function getPhaseElementMap(backElement, frontElement) {
+        return {
+            back: backElement,
+            front: frontElement
+        };
+    }
+
+    function applyPhaseOrder(backElement, frontElement, blueElement) {
+        const phaseElements = getPhaseElementMap(backElement, frontElement);
+        const phaseOrder = getPhaseLayerOrder();
+        const bottomLayer = phaseElements[phaseOrder[1]] || backElement;
+        const topLayer = phaseElements[phaseOrder[0]] || frontElement;
+
+        bottomLayer.style.zIndex = "1";
+        topLayer.style.zIndex = "2";
+        blueElement.style.zIndex = "3";
+    }
+
+    function getCompareBaseSource() {
+        const phaseLayerConfig = {
+            back: { enabled: chkBack.checked, src: backImg },
+            front: { enabled: chkFront.checked, src: frontImg }
+        };
+        const visibleBaseLayer = getPhaseLayerOrder()
+            .slice()
+            .reverse()
+            .map((layerName) => phaseLayerConfig[layerName])
+            .find((layer) => layer && layer.enabled);
+
+        return visibleBaseLayer ? visibleBaseLayer.src : resultImg;
+    }
+
+    function refreshActiveView() {
+        const selectedLayers = getSelectedLayers();
+
+        if (compareBox.style.display === "block" && selectedLayers.length >= 2) {
+            startCompare(true);
+            return;
+        }
+
+        applyLayers();
+    }
+
+    function showSingleImage(src) {
+        compareBox.style.display = "none";
+        layerBox.style.display = "none";
+        zoomImage.style.display = "block";
+        zoomImage.dataset.currentLayer = src === resultImg ? "blue" : "image";
+        zoomImage.src = src === resultImg ? getBlueDisplaySrc() : src;
+        setWrapperAspectRatio(src);
+        applyScale();
+    }
+
+    function syncLayerStack(backElement, frontElement, blueElement) {
+        backElement.style.display = chkBack.checked ? "block" : "none";
+        frontElement.style.display = chkFront.checked ? "block" : "none";
+        blueElement.style.display = chkBlue.checked ? "block" : "none";
+
+        applyPhaseOrder(backElement, frontElement, blueElement);
+
+        backElement.style.opacity = "1";
+        frontElement.style.opacity = "1";
+
+        if (chkBack.checked && chkFront.checked) {
+            const phaseElements = getPhaseElementMap(backElement, frontElement);
+            const topLayerName = getPhaseLayerOrder()[0];
+            const topLayer = phaseElements[topLayerName];
+            if (topLayer) {
+                topLayer.style.opacity = "0.65";
+            }
+        }
+
+        blueElement.style.opacity = chkBlue.checked ? `${blueOpacity}` : "0";
+    }
+
+    function applyLayers() {
+        const selectedLayers = getSelectedLayers();
+
+        compareBox.style.display = "none";
+
+        if (selectedLayers.length === 0) {
+            showSingleImage(resultImg);
+            return;
+        }
+
+        if (selectedLayers.length === 1) {
+            showSingleImage(selectedLayers[0].src);
+            return;
+        }
+
+        zoomImage.style.display = "none";
+        zoomImage.dataset.currentLayer = "stack";
+        layerBox.style.display = "block";
+
+        syncLayerStack(backLayer, frontLayer, blueLayer);
+        setWrapperAspectRatio(selectedLayers[0].src);
+        applyScale();
+    }
+
+    function resetImage() {
+        chkBack.checked = true;
+        chkFront.checked = true;
+        chkBlue.checked = true;
+        blueOpacity = 0.45;
+        blueIntensitySlider.value = "45";
+        applyBlueIntensity();
+        resetOverlayColor();
+        resetZoom();
+        toggleSelectZoom(false);
+        applyLayers();
+    }
+
+    function toggleOverlayPicker() {
+        overlayPickerPanel.classList.toggle("is-hidden");
+    }
+
+    function startCompare(keepSliderPosition = false) {
+        const selectedLayers = getSelectedLayers();
+
+        if (selectedLayers.length < 2) {
+            alert("Compare ke liye kam se kam 2 layers select karo.");
+            return;
+        }
+
+        zoomImage.style.display = "none";
+        zoomImage.dataset.currentLayer = "compare";
+        layerBox.style.display = "none";
+        compareBox.style.display = "block";
+        baseImgCompare.src = getCompareBaseSource();
+
+        syncLayerStack(compareRevealBack, compareRevealFront, compareRevealBlue);
+        setWrapperAspectRatio(baseImgCompare.src);
+
+        if (!keepSliderPosition) {
+            compareSplitRatio = 0.5;
+        }
+
+        applyScale();
+        updateSliderFromRatio();
+    }
+
+    function updateSliderFromRatio() {
+        const bounds = getVisibleCompareBounds();
+        const pos = bounds.top + (bounds.bottom - bounds.top) * compareSplitRatio;
+        renderSlider(bounds, pos);
+    }
+
+    function renderSlider(bounds, pos) {
+        compareReveal.style.clipPath = `inset(${bounds.top}px ${wrapper.clientWidth - bounds.right}px ${wrapper.clientHeight - pos}px ${bounds.left}px)`;
+        sliderLine.style.left = `${bounds.left}px`;
+        sliderLine.style.width = `${Math.max(0, bounds.right - bounds.left)}px`;
+        sliderLine.style.top = `${pos}px`;
+    }
+
+    function updateSlider(y) {
+        const bounds = getVisibleCompareBounds();
+        const pos = clamp(y, bounds.top, bounds.bottom);
+        const height = Math.max(bounds.bottom - bounds.top, 1);
+        compareSplitRatio = (pos - bounds.top) / height;
+        renderSlider(bounds, pos);
+    }
+
+    function stopPanning(pointerId = null) {
+        if (pointerId !== null && activePanPointerId !== null && pointerId !== activePanPointerId) {
+            return;
+        }
+
+        if (activePanPointerId !== null && wrapper.hasPointerCapture && wrapper.hasPointerCapture(activePanPointerId)) {
+            wrapper.releasePointerCapture(activePanPointerId);
+        }
+
+        isPanning = false;
+        activePanPointerId = null;
+        updatePanCursor();
+    }
+
+    sliderLine.addEventListener("pointerdown", (event) => {
+        if (compareBox.style.display !== "block") {
+            return;
+        }
+
+        event.stopPropagation();
+        isSliderDragging = true;
+        const rect = wrapper.getBoundingClientRect();
+        updateSlider(event.clientY - rect.top);
+    });
+
+    window.addEventListener("pointerup", () => {
+        isSliderDragging = false;
+        stopPanning();
+        stopSelection();
+    });
+
+    window.addEventListener("pointermove", (event) => {
+        if (!isSliderDragging || compareBox.style.display !== "block") {
+            return;
+        }
+
+        const rect = wrapper.getBoundingClientRect();
+        updateSlider(event.clientY - rect.top);
+    });
+
+    wrapper.addEventListener("wheel", (event) => {
+        event.preventDefault();
+        const delta = event.deltaY < 0 ? 0.15 : -0.15;
+        setScale(scale + delta);
+    }, { passive: false });
+
+    wrapper.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0 || event.target === sliderLine) {
+            return;
+        }
+
+        if (!selectZoomEnabled && scale > 1) {
+            event.preventDefault();
+            isPanning = true;
+            activePanPointerId = event.pointerId;
+            panStartX = event.clientX;
+            panStartY = event.clientY;
+            panOriginX = panX;
+            panOriginY = panY;
+        } else {
+            if (!selectZoomEnabled) {
+                return;
+            }
+
+            event.preventDefault();
+            const imagePoint = getWrapperLocalPoint(event.clientX, event.clientY);
+            isSelecting = true;
+            activeSelectionPointerId = event.pointerId;
+            selectionStartX = imagePoint.x;
+            selectionStartY = imagePoint.y;
+            updateSelectionBox(selectionStartX, selectionStartY);
+        }
+
+        if (wrapper.setPointerCapture) {
+            wrapper.setPointerCapture(event.pointerId);
+        }
+
+        updatePanCursor();
+    });
+
+    wrapper.addEventListener("pointermove", (event) => {
+        if (isPanning && event.pointerId === activePanPointerId) {
+            if ((event.buttons & 1) !== 1) {
+                stopPanning(event.pointerId);
+                return;
+            }
+
+            event.preventDefault();
+            panX = panOriginX + (event.clientX - panStartX);
+            panY = panOriginY + (event.clientY - panStartY);
+            applyScale();
+            return;
+        }
+
+        if (!isSelecting || event.pointerId !== activeSelectionPointerId) {
+            return;
+        }
+
+        if ((event.buttons & 1) !== 1) {
+            stopSelection(event.pointerId);
+            return;
+        }
+
+        event.preventDefault();
+        const imagePoint = getWrapperLocalPoint(event.clientX, event.clientY);
+        updateSelectionBox(imagePoint.x, imagePoint.y);
+    });
+
+    wrapper.addEventListener("pointerup", (event) => {
+        stopPanning(event.pointerId);
+        if (!isSelecting || event.pointerId !== activeSelectionPointerId) {
+            return;
+        }
+
+        const imagePoint = getWrapperLocalPoint(event.clientX, event.clientY);
+        zoomToSelection(imagePoint.x, imagePoint.y);
+    });
+
+    wrapper.addEventListener("pointercancel", (event) => {
+        stopPanning(event.pointerId);
+        stopSelection(event.pointerId);
+    });
+
+    function clearPhaseDragState() {
+        draggablePhaseItems.forEach((item) => {
+            item.classList.remove("is-dragging", "drag-target");
+        });
+        draggedPhaseItem = null;
+    }
+
+    draggablePhaseItems.forEach((item) => {
+        item.addEventListener("dragstart", (event) => {
+            draggedPhaseItem = item;
+            item.classList.add("is-dragging");
+            if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setData("text/plain", item.dataset.phaseLayer || "");
+            }
+        });
+
+        item.addEventListener("dragover", (event) => {
+            if (!draggedPhaseItem || draggedPhaseItem === item) {
+                return;
+            }
+
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "move";
+            draggablePhaseItems.forEach((phaseItem) => phaseItem.classList.remove("drag-target"));
+            item.classList.add("drag-target");
+        });
+
+        item.addEventListener("drop", (event) => {
+            if (!draggedPhaseItem || draggedPhaseItem === item) {
+                clearPhaseDragState();
+                return;
+            }
+
+            event.preventDefault();
+            item.classList.remove("drag-target");
+            const draggedRect = draggedPhaseItem.getBoundingClientRect();
+            const targetRect = item.getBoundingClientRect();
+            const isDraggingDownward = draggedRect.top < targetRect.top;
+
+            if (isDraggingDownward) {
+                phaseLayerList.insertBefore(draggedPhaseItem, item.nextSibling);
+            } else {
+                phaseLayerList.insertBefore(draggedPhaseItem, item);
+            }
+
+            refreshActiveView();
+            clearPhaseDragState();
+        });
+
+        item.addEventListener("dragend", clearPhaseDragState);
+
+        item.addEventListener("dragleave", () => {
+            item.classList.remove("drag-target");
+        });
+    });
+
+    [chkBack, chkFront, chkBlue].forEach((checkbox) => {
+        checkbox.addEventListener("change", refreshActiveView);
+    });
+
+    [zoomImage, backLayer, frontLayer, blueLayer, baseImgCompare, compareRevealBack, compareRevealFront, compareRevealBlue]
+        .forEach((imageElement) => {
+            imageElement.addEventListener("load", () => {
+                if (compareBox.style.display === "block") {
+                    syncLayerStack(compareRevealBack, compareRevealFront, compareRevealBlue);
+                    return;
+                }
+
+                applyLayers();
+            });
+        });
+
+    blueIntensitySlider.addEventListener("input", () => {
+        blueOpacity = Number(blueIntensitySlider.value) / 100;
+        applyBlueIntensity();
+    });
+
+    colorPlane.addEventListener("pointerdown", (event) => {
+        activePickerTarget = "plane";
+        updateColorPlaneFromPointer(event);
+    });
+
+    hueStrip.addEventListener("pointerdown", (event) => {
+        activePickerTarget = "hue";
+        updateHueFromPointer(event);
+    });
+
+    window.addEventListener("pointermove", (event) => {
+        if (activePickerTarget === "plane") {
+            updateColorPlaneFromPointer(event);
+        } else if (activePickerTarget === "hue") {
+            updateHueFromPointer(event);
+        }
+    });
+
+    window.addEventListener("pointerup", () => {
+        activePickerTarget = null;
+    });
+
+    zoomSlider.addEventListener("input", () => {
+        setScale(Number(zoomSlider.value) / 100);
+    });
+
+    updateOverlayColorLabels();
+    applyBlueIntensity();
+    updateSelectZoomButton();
+    setWrapperAspectRatio(resultImg);
+    applyLayers();
+    window.addEventListener("load", applyLayers);
+</script>
+
+{% endblock %}

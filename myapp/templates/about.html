@@ -1,0 +1,400 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  :root {
+    --bg: #020408;
+    --cyan: #00f5ff;
+    --gold: #ffd700;
+    --purple: #7b2fff;
+    --green: #00ff88;
+    --text: #e0f0ff;
+    --muted: #4a6a8a;
+    --glass: rgba(0, 245, 255, 0.05);
+    --glass-border: rgba(0, 245, 255, 0.15);
+  }
+
+  .about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 130px 40px 80px;
+    position: relative;
+    z-index: 1;
+    font-family: Arial, sans-serif;
+    color: var(--text);
+  }
+
+  .about-header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  .about-header h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+  }
+
+  .about-header p {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    border-left: 4px solid var(--cyan);
+    padding-left: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── ARCHITECTURE PANEL ── */
+  .architecture-panel {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 40px;
+    margin-bottom: 80px;
+    backdrop-filter: blur(20px);
+  }
+
+  .architecture-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  @media (max-width: 860px) {
+    .architecture-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .arch-text p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+
+  .arch-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .arch-stat-card {
+    background: rgba(0, 245, 255, 0.03);
+    border: 1px solid rgba(0, 245, 255, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .arch-stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--cyan);
+    margin-bottom: 4px;
+  }
+
+  .arch-stat-lbl {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── TOOLS GRID ── */
+  .tools-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    margin-bottom: 80px;
+  }
+
+  @media (max-width: 768px) {
+    .tools-detail-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tool-detail-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 32px;
+    transition: all 0.3s;
+  }
+
+  .tool-detail-card:hover {
+    border-color: rgba(0, 245, 255, 0.35);
+    box-shadow: 0 12px 40px rgba(0, 245, 255, 0.08);
+    transform: translateY(-4px);
+  }
+
+  .tool-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .tool-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cyan);
+    background: rgba(0, 245, 255, 0.1);
+    border: 1px solid rgba(0, 245, 255, 0.25);
+    border-radius: 4px;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tool-detail-icon {
+    font-size: 32px;
+  }
+
+  .tool-detail-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+
+  .tool-detail-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .tool-tech-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tool-tech-tag {
+    font-size: 12px;
+    color: rgba(224, 240, 255, 0.6);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+
+  /* ── STACK LIST ── */
+  .stack-panel {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 40px;
+  }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  @media (max-width: 860px) {
+    .stack-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stack-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .stack-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    transition: background 0.3s;
+  }
+
+  .stack-card:hover {
+    background: rgba(0, 245, 255, 0.03);
+    border-color: rgba(0, 245, 255, 0.15);
+  }
+
+  .stack-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .stack-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+</style>
+
+<div class="about-container">
+  <!-- Header -->
+  <div class="about-header">
+    <h1>Platform Overview</h1>
+    <p>Discover the technologies, architecture, and machine learning structures behind Dr. Design AI Vision tools.</p>
+  </div>
+
+  <!-- Architecture -->
+  <section class="architecture-panel">
+    <div class="section-title">Core Infrastructure</div>
+    <div class="architecture-grid">
+      <div class="arch-text">
+        <p>
+          Dr. Design AI is built as a highly scalable geospatial computer vision infrastructure. The portal is engineered to ingest high-resolution drone orthomosaics and multispectral satellite imagery, parse them through asynchronous worker processes, and run state-of-the-art neural network inference pipelines.
+        </p>
+        <p>
+          To maintain extreme performance under heavy processing demands (such as multi-gigabyte TIFF images), the platform utilizes chunked uploads and executes core spatial calculations inside celery workers. Every model output is integrated with geospatial reference frames, automatically converting vector masks back into standard GIS Shapefiles.
+        </p>
+      </div>
+      <div class="arch-stats">
+        <div class="arch-stat-card">
+          <div class="arch-stat-val">4</div>
+          <div class="arch-stat-lbl">AI Engines</div>
+        </div>
+        <div class="arch-stat-card">
+          <div class="arch-stat-val">2.0m+</div>
+          <div class="arch-stat-lbl">Tiles Checked</div>
+        </div>
+        <div class="arch-stat-card">
+          <div class="arch-stat-val">&lt;50ms</div>
+          <div class="arch-stat-lbl">API Latency</div>
+        </div>
+        <div class="arch-stat-card">
+          <div class="arch-stat-val">100%</div>
+          <div class="arch-stat-lbl">Georeferenced</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Tools Directory -->
+  <section>
+    <div class="section-title">AI Processing Modules</div>
+    <div class="tools-detail-grid">
+      
+      <!-- Change Detection -->
+      <div class="tool-detail-card">
+        <div class="tool-meta">
+          <span class="tool-badge">Temporal Analysis</span>
+          <span class="tool-detail-icon">🛠️</span>
+        </div>
+        <div class="tool-detail-name">Change Detection</div>
+        <p class="tool-detail-desc">
+          Analyzes dual-temporal satellite or drone captures of the same area. Our Siamese Deep Learning networks isolate differences in land cover, building footprints, and infrastructure, filtering out seasonal illumination and shadow artifacts.
+        </p>
+        <ul class="tool-tech-list">
+          <li class="tool-tech-tag">Siamese Nets</li>
+          <li class="tool-tech-tag">Binary Masking</li>
+          <li class="tool-tech-tag">Raster Differences</li>
+        </ul>
+      </div>
+
+      <!-- Road Detection -->
+      <div class="tool-detail-card">
+        <div class="tool-meta">
+          <span class="tool-badge">Linear Extraction</span>
+          <span class="tool-detail-icon">🛣️</span>
+        </div>
+        <div class="tool-detail-name">Road Detection</div>
+        <p class="tool-detail-desc">
+          Automates the tracing and mapping of road corridors, dirt tracks, and highways. Optimized with topological loss functions, this module ensures high continuity in roads, minimizing fractures from overhanging tree canopies or shadows.
+        </p>
+        <ul class="tool-tech-list">
+          <li class="tool-tech-tag">U-Net / SegFormer</li>
+          <li class="tool-tech-tag">Topology Loss</li>
+          <li class="tool-tech-tag">Vector Line Tracing</li>
+        </ul>
+      </div>
+
+      <!-- Building Footprint -->
+      <div class="tool-detail-card">
+        <div class="tool-meta">
+          <span class="tool-badge">Instance Segmentation</span>
+          <span class="tool-detail-icon">🏗️</span>
+        </div>
+        <div class="tool-detail-name">Building Footprint</div>
+        <p class="tool-detail-desc">
+          Delineates individual building boundary profiles. Uses Mask R-CNN architectures to classify every rooftop instance, generating vector polygons that align with georeferenced coordinates for integration with city planning models.
+        </p>
+        <ul class="tool-tech-list">
+          <li class="tool-tech-tag">Mask R-CNN</li>
+          <li class="tool-tech-tag">Instance Segmentation</li>
+          <li class="tool-tech-tag">Polygon Vectorization</li>
+        </ul>
+      </div>
+
+      <!-- Tree Detection -->
+      <div class="tool-detail-card">
+        <div class="tool-meta">
+          <span class="tool-badge">Canopy Analysis</span>
+          <span class="tool-detail-icon">🌳</span>
+        </div>
+        <div class="tool-detail-name">Tree & Vegetation</div>
+        <p class="tool-detail-desc">
+          Performs semantic classification of high-density forest canopies, trees, and low-growing vegetation. Powered by a SegFormer-b5 transformer model, it outputs area coverage statistics (in sq. meters) and multi-class shapefile layers.
+        </p>
+        <ul class="tool-tech-list">
+          <li class="tool-tech-tag">SegFormer-b5</li>
+          <li class="tool-tech-tag">Semantic Classing</li>
+          <li class="tool-tech-tag">Canopy Area Stats</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section class="stack-panel">
+    <div class="section-title">Core Technology Stack</div>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="stack-name">PyTorch</div>
+        <div class="stack-desc">Deep learning model training and hardware-accelerated GPU inference pipeline.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name">Rasterio / Fiona</div>
+        <div class="stack-desc">GIS geotransform math, windowed raster reading, and vector polygon shapefile construction.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name">Celery / Redis</div>
+        <div class="stack-desc">Asynchronous task manager keeping the web portal responsive during long inference operations.</div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-name">Django</div>
+        <div class="stack-desc">Secure web framework managing uploads, job states, user accounts, and RESTful database entities.</div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

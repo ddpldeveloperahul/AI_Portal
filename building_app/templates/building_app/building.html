@@ -1,0 +1,450 @@
+{% extends 'base.html' %}
+{% block content %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+<style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+        --bg: #08110d;
+        --panel: #101a15;
+        --panel-2: #14231c;
+        --line: rgba(42, 231, 157, 0.28);
+        --line-strong: rgba(42, 231, 157, 0.62);
+        --text: #ecfff6;
+        --muted: rgba(236, 255, 246, 0.58);
+        --green: #2ae79d;
+        --green-dark: #06100c;
+        --red: #ff6868;
+    }
+    .detection-container {
+        min-height: calc(100vh - 96px);
+        display: grid;
+        place-items: center;
+        padding: 130px 16px 60px;
+        font-family: Arial, sans-serif;
+        color: var(--text);
+        position: relative;
+        z-index: 1;
+    }
+    main.detection-main {
+        width: min(940px, 100%);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+    @media (max-width: 720px) {
+        main.detection-main { grid-template-columns: 1fr; }
+    }
+    .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 26px;
+        min-width: 0;
+    }
+    .eyebrow {
+        color: var(--green);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    h1, h2 {
+        margin: 0;
+        letter-spacing: 0;
+    }
+    h1 { font-size: 30px; }
+    h2 { font-size: 24px; }
+    p {
+        color: var(--muted);
+        line-height: 1.5;
+    }
+    .dropzone {
+        margin-top: 22px;
+        min-height: 260px;
+        border: 2px dashed var(--line-strong);
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 26px;
+        background: rgba(42, 231, 157, 0.07);
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .dropzone.over {
+        background: rgba(42, 231, 157, 0.14);
+        border-color: var(--green);
+    }
+    .dropzone input { display: none; }
+    .upload-icon {
+        width: 62px;
+        height: 62px;
+        margin: 0 auto 16px;
+        color: var(--green);
+    }
+    .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 10px;
+    }
+    .btn-action {
+        border: 0;
+        border-radius: 6px;
+        padding: 12px 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn-action:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-action:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+    }
+    .browse-btn, .start-btn {
+        background: var(--green);
+        color: var(--green-dark);
+    }
+    .reset-btn {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--text);
+    }
+    .file-card {
+        margin-top: 22px;
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+        display: none;
+    }
+    .file-card.visible { display: block; }
+    .file-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    .file-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 700;
+    }
+    .file-size {
+        color: var(--muted);
+        white-space: nowrap;
+    }
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .progress-wrap {
+        margin-top: 22px;
+        display: none;
+    }
+    .progress-wrap.visible { display: block; }
+    .progress-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    .percent {
+        color: var(--green);
+        font-weight: 800;
+    }
+    .track {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    .bar {
+        height: 100%;
+        width: 0%;
+        background: var(--green);
+        border-radius: inherit;
+        transition: width 0.25s ease;
+    }
+    .status-line {
+        min-height: 22px;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 14px;
+    }
+    .error-msg {
+        margin-top: 14px;
+        display: none;
+        color: var(--red);
+        border: 1px solid rgba(255, 104, 104, 0.35);
+        border-radius: 6px;
+        padding: 10px 12px;
+        background: rgba(255, 104, 104, 0.08);
+    }
+    .error-msg.visible { display: block; }
+</style>
+
+<div class="detection-container">
+    <main class="detection-main">
+        <section class="panel">
+            <div class="eyebrow">Satellite Analysis</div>
+            <h1>Building Footprint Detection</h1>
+            <p>Choose a JPG, PNG, TIF, or TIFF image. After selecting the file, press Start Analysis.</p>
+
+            {% if error %}
+                <div class="error-msg visible">{{ error }}</div>
+            {% endif %}
+
+            <div class="dropzone" id="dropzone">
+                <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.tif,.tiff">
+                <div>
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <path d="M17 8 12 3 7 8"/>
+                        <path d="M12 3v12"/>
+                    </svg>
+                    <h2>Drop image here</h2>
+                    <p>or</p>
+                    <button class="btn-action browse-btn" id="browse-btn" type="button">Browse File</button>
+                    <div class="hint">Supported: .jpg, .jpeg, .png, .tif, .tiff</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="eyebrow">Processing Queue</div>
+            <h2>Upload Status</h2>
+            <p id="empty-state">No file selected yet.</p>
+
+            <div class="file-card" id="file-card">
+                <div class="file-row">
+                    <div class="file-name" id="file-name">-</div>
+                    <div class="file-size" id="file-size">-</div>
+                </div>
+                <div class="actions">
+                    <button class="btn-action start-btn" id="start-btn" type="button" disabled>Start Analysis</button>
+                    <button class="btn-action reset-btn" id="reset-btn" type="button">Choose Another</button>
+                </div>
+            </div>
+
+            <div class="progress-wrap" id="progress-wrap">
+                <div class="progress-head">
+                    <span id="phase-text">Waiting</span>
+                    <span class="percent" id="percent-text">0%</span>
+                </div>
+                <div class="track">
+                    <div class="bar" id="progress-bar"></div>
+                </div>
+                <div class="status-line" id="status-line"></div>
+            </div>
+
+            <div class="error-msg" id="error-box"></div>
+        </section>
+    </main>
+</div>
+
+<script>
+(function () {
+    const uploadUrl = "{% url 'building_api_predict' %}";
+    const fileInput = document.getElementById("file-input");
+    const browseBtn = document.getElementById("browse-btn");
+    const dropzone = document.getElementById("dropzone");
+    const emptyState = document.getElementById("empty-state");
+    const fileCard = document.getElementById("file-card");
+    const fileName = document.getElementById("file-name");
+    const fileSize = document.getElementById("file-size");
+    const startBtn = document.getElementById("start-btn");
+    const resetBtn = document.getElementById("reset-btn");
+    const progressWrap = document.getElementById("progress-wrap");
+    const phaseText = document.getElementById("phase-text");
+    const percentText = document.getElementById("percent-text");
+    const progressBar = document.getElementById("progress-bar");
+    const statusLine = document.getElementById("status-line");
+    const errorBox = document.getElementById("error-box");
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    const allowedExtensions = [".jpg", ".jpeg", ".png", ".tif", ".tiff"];
+    let selectedFile = null;
+    let pollTimer = null;
+
+    function getCookie(name) {
+        const parts = document.cookie.split(";").map(part => part.trim());
+        for (const part of parts) {
+            if (part.startsWith(name + "=")) {
+                return decodeURIComponent(part.slice(name.length + 1));
+            }
+        }
+        return "";
+    }
+
+    function fmtSize(bytes) {
+        if (bytes >= 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + " MB";
+        if (bytes >= 1024) return Math.round(bytes / 1024) + " KB";
+        return bytes + " B";
+    }
+
+    function setProgress(percent, phase, detail) {
+        const value = Math.max(0, Math.min(100, Math.round(percent || 0)));
+        progressWrap.classList.add("visible");
+        progressBar.style.width = value + "%";
+        percentText.textContent = value + "%";
+        phaseText.textContent = phase || "Processing";
+        statusLine.textContent = detail || "";
+    }
+
+    function showError(message) {
+        errorBox.textContent = message;
+        errorBox.classList.add("visible");
+        startBtn.disabled = !selectedFile;
+        startBtn.textContent = "Start Analysis";
+    }
+
+    function clearError() {
+        errorBox.textContent = "";
+        errorBox.classList.remove("visible");
+    }
+
+    function reset() {
+        window.clearTimeout(pollTimer);
+        selectedFile = null;
+        fileInput.value = "";
+        emptyState.style.display = "block";
+        fileCard.classList.remove("visible");
+        progressWrap.classList.remove("visible");
+        startBtn.disabled = true;
+        startBtn.textContent = "Start Analysis";
+        progressBar.style.width = "0%";
+        percentText.textContent = "0%";
+        phaseText.textContent = "Waiting";
+        statusLine.textContent = "";
+        clearError();
+    }
+
+    function pickFile(file) {
+        clearError();
+        if (!file) return;
+
+        const lowerName = file.name.toLowerCase();
+        const isAllowed = allowedExtensions.some(ext => lowerName.endsWith(ext));
+        if (!isAllowed) {
+            reset();
+            showError("Use a .jpg, .jpeg, .png, .tif, or .tiff file.");
+            return;
+        }
+
+        selectedFile = file;
+        emptyState.style.display = "none";
+        fileCard.classList.add("visible");
+        fileName.textContent = file.name;
+        fileSize.textContent = fmtSize(file.size);
+        startBtn.disabled = false;
+        startBtn.textContent = "Start Analysis";
+        setProgress(0, "Ready", "Press Start Analysis to upload and process this file.");
+    }
+
+    function pollStatus(statusUrl, resultUrl) {
+        fetch(statusUrl, { headers: { "Accept": "application/json" } })
+            .then(response => {
+                if (!response.ok) throw new Error("Could not read processing status.");
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "DONE") {
+                    setProgress(100, "Complete", "Opening result page...");
+                    window.location.href = resultUrl;
+                    return;
+                }
+
+                if (data.status === "FAILED") {
+                    setProgress(data.progress_percent || 0, "Failed", data.error || "Processing failed.");
+                    showError(data.error || "Processing failed.");
+                    return;
+                }
+
+                setProgress(
+                    data.progress_percent || 0,
+                    data.status === "PENDING" ? "Queued" : "Analysing",
+                    data.progress_message || "Processing is running."
+                );
+                pollTimer = window.setTimeout(() => pollStatus(statusUrl, resultUrl), 1000);
+            })
+            .catch(error => {
+                showError(error.message);
+                pollTimer = window.setTimeout(() => pollStatus(statusUrl, resultUrl), 3000);
+            });
+    }
+
+    function startAnalysis() {
+        if (!selectedFile || startBtn.disabled) return;
+
+        clearError();
+        window.clearTimeout(pollTimer);
+        startBtn.disabled = true;
+        startBtn.textContent = "Uploading...";
+        setProgress(0, "Uploading", "Sending file to server.");
+
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", uploadUrl);
+        xhr.setRequestHeader("X-CSRFToken", csrfToken || getCookie("csrftoken"));
+        xhr.setRequestHeader("Accept", "application/json");
+
+        xhr.upload.onprogress = function (event) {
+            if (!event.lengthComputable) return;
+            setProgress((event.loaded / event.total) * 100, "Uploading", "Uploading file bytes.");
+        };
+
+        xhr.onload = function () {
+            let data = {};
+            try {
+                data = JSON.parse(xhr.responseText || "{}");
+            } catch (error) {
+                showError("Server returned an invalid response.");
+                return;
+            }
+
+            if (xhr.status < 200 || xhr.status >= 300) {
+                showError(data.error || "Upload failed.");
+                return;
+            }
+
+            startBtn.textContent = "Analysis Running";
+            setProgress(data.progress_percent || 0, "Queued", "File uploaded. Waiting for analysis.");
+            pollStatus(data.status_url, data.result_url);
+        };
+
+        xhr.onerror = function () {
+            showError("Network error while uploading file.");
+        };
+
+        xhr.send(formData);
+    }
+
+    browseBtn.addEventListener("click", () => fileInput.click());
+    dropzone.addEventListener("click", event => {
+        if (event.target !== browseBtn) fileInput.click();
+    });
+    fileInput.addEventListener("change", () => pickFile(fileInput.files[0]));
+    startBtn.addEventListener("click", startAnalysis);
+    resetBtn.addEventListener("click", reset);
+
+    dropzone.addEventListener("dragover", event => {
+        event.preventDefault();
+        dropzone.classList.add("over");
+    });
+    dropzone.addEventListener("dragleave", () => dropzone.classList.remove("over"));
+    dropzone.addEventListener("drop", event => {
+        event.preventDefault();
+        dropzone.classList.remove("over");
+        pickFile(event.dataTransfer.files[0]);
+    });
+})();
+</script>
+{% endblock %}

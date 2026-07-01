@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  :root {
+    --bg: #020408;
+    --cyan: #00f5ff;
+    --gold: #ffd700;
+    --purple: #7b2fff;
+    --green: #00ff88;
+    --text: #e0f0ff;
+    --muted: #4a6a8a;
+    --glass: rgba(0, 245, 255, 0.05);
+    --glass-border: rgba(0, 245, 255, 0.15);
+  }
+
+  .tools-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 100px 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .tools-header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  .tools-header h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .tools-header p {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .tool-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .tool-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(0, 245, 255, 0.08), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .tool-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    border-color: rgba(0, 245, 255, 0.4);
+    box-shadow: 0 28px 80px rgba(0, 245, 255, 0.15), 0 0 40px rgba(0, 245, 255, 0.1);
+  }
+
+  .tool-card:hover::before {
+    opacity: 1;
+  }
+
+  .tool-card:hover::after {
+    opacity: 1;
+  }
+
+  .tool-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 245, 255, 0.1);
+    border: 1px solid rgba(0, 245, 255, 0.25);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .tool-card:hover .tool-icon {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+  }
+
+  .tool-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-transform: capitalize;
+  }
+
+  .tool-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    flex-grow: 1;
+  }
+
+  .tool-button {
+    min-height: 50px;
+    border: 0;
+    border-radius: 8px;
+    color: #020408;
+    background: var(--cyan);
+    font-family: 'Orbitron', monospace;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 12px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .tool-button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: translateX(-100%) rotate(45deg);
+    transition: transform 0.5s;
+  }
+
+  .tool-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 245, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+  }
+
+  .tool-button:hover::before {
+    transform: translateX(100%) rotate(45deg);
+  }
+
+  .tool-button-icon {
+    font-size: 16px;
+  }
+
+  @media (max-width: 1024px) {
+    .tools-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .tools-container {
+      padding: 60px 20px;
+    }
+
+    .tools-header h1 {
+      font-size: 32px;
+    }
+
+    .tool-card {
+      min-height: 280px;
+      padding: 24px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .tools-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="tools-container">
+  <div class="tools-header">
+    <h1>Available Tools</h1>
+    <p>Professional-grade computer vision tools for image analysis, geospatial mapping, and object detection.</p>
+  </div>
+
+  <div class="tools-grid">
+
+    <div class="tool-card">
+      <div class="tool-icon">🛠️</div>
+      <h2 class="tool-name">Change Detection</h2>
+      <p class="tool-desc">Compare dual satellite or aerial images over time to detect land cover changes, construction work, and environmental updates.</p>
+      <a href="{% url 'upload' %}" class="tool-button">
+        <span class="tool-button-icon">▶</span>
+        Use This Tool
+      </a>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🛣️</div>
+      <h2 class="tool-name">Road Detection</h2>
+      <p class="tool-desc">Detect and extract road networks from overhead imagery with georeferenced output overlay and GIS shapefiles.</p>
+      <a href="{% url 'road' %}" class="tool-button">
+        <span class="tool-button-icon">▶</span>
+        Use This Tool
+      </a>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🏗 ️</div>
+      <h2 class="tool-name">Building Detection</h2>
+      <p class="tool-desc">Extract precise building footprint boundaries and polygons from satellite or high-altitude aerial photography.</p>
+      <a href="{% url 'building_home' %}" class="tool-button">
+        <span class="tool-button-icon">▶</span>
+        Use This Tool
+      </a>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🌳</div>
+      <h2 class="tool-name">Tree Detection</h2>
+      <p class="tool-desc">Identify tree crowns, vegetation coverage, and calculate detailed canopy area statistics and GIS vectors.</p>
+      <a href="{% url 'tree_home' %}" class="tool-button">
+        <span class="tool-button-icon">▶</span>
+        Use This Tool
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,537 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .sj-page {
+        min-height: calc(100vh - 86px);
+        padding: 58px 18px;
+        font-family: 'DM Sans', sans-serif;
+        background:
+            linear-gradient(135deg, rgba(238, 245, 252, 0.96), rgba(223, 244, 244, 0.96)),
+            radial-gradient(circle at 18% 22%, rgba(22, 119, 255, 0.12), transparent 34%),
+            radial-gradient(circle at 82% 78%, rgba(0, 185, 140, 0.14), transparent 30%);
+    }
+
+    .sj-shell {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 0.86fr 1.14fr;
+        align-items: stretch;
+        border-radius: 26px;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid rgba(195, 214, 230, 0.8);
+        box-shadow: 0 34px 90px rgba(25, 45, 70, 0.2);
+    }
+
+    .sj-info {
+        position: relative;
+        padding: 42px;
+        color: #ffffff;
+        background:
+            linear-gradient(150deg, rgba(13, 38, 71, 0.96), rgba(20, 89, 103, 0.94)),
+            radial-gradient(circle at 22% 18%, rgba(0, 212, 255, 0.24), transparent 34%);
+        overflow: hidden;
+    }
+
+    .sj-info::after {
+        content: "";
+        position: absolute;
+        right: -90px;
+        bottom: -90px;
+        width: 240px;
+        height: 240px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 50%;
+    }
+
+    .sj-logo-card {
+        width: 104px;
+        height: 84px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 20px 42px rgba(0, 0, 0, 0.18);
+        margin-bottom: 34px;
+    }
+
+    .sj-logo-card img {
+        width: 82px;
+        height: 68px;
+        object-fit: contain;
+    }
+
+    .sj-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #bff7ee;
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .sj-kicker::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #00d4ff;
+    }
+
+    .sj-info h1 {
+        margin: 0;
+        max-width: 340px;
+        font-size: 42px;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: 0;
+    }
+
+    .sj-info p {
+        margin: 18px 0 0;
+        max-width: 340px;
+        color: #d9edf4;
+        font-size: 15px;
+        line-height: 1.7;
+        font-weight: 500;
+    }
+
+    .sj-info-list {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 12px;
+        margin-top: 34px;
+    }
+
+    .sj-info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #ecfeff;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .sj-info-dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        flex: 0 0 auto;
+    }
+
+    .sj-panel {
+        padding: 42px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .sj-panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .sj-title {
+        margin: 0;
+        color: #142033;
+        font-size: 26px;
+        font-weight: 800;
+    }
+
+    .sj-subtitle {
+        margin-top: 6px;
+        color: #6b7788;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .sj-format {
+        color: #0f5b76;
+        background: #e7f8ff;
+        border: 1px solid #b9eafa;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .sj-badge {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        margin-bottom: 22px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: #eefdf7;
+        border: 1px solid #a9ead4;
+    }
+
+    .sj-badge-dot {
+        width: 9px;
+        height: 9px;
+        background: #00b98c;
+        border-radius: 50%;
+        flex: 0 0 auto;
+    }
+
+    .sj-badge-text {
+        min-width: 0;
+        color: #065f46;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sj-badge-label {
+        margin-left: auto;
+        color: #047857;
+        background: rgba(0, 185, 140, 0.12);
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .sj-field {
+        margin-bottom: 22px;
+    }
+
+    .sj-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        color: #334155;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+    }
+
+    .sj-label-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #1677ff;
+    }
+
+    .sj-file-area {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 15px;
+        min-height: 94px;
+        padding: 18px;
+        border: 2px dashed #bfd0e3;
+        border-radius: 18px;
+        background: #f7faff;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+
+    .sj-file-area:hover {
+        border-color: #1677ff;
+        background: #f0f7ff;
+        box-shadow: 0 14px 30px rgba(22, 119, 255, 0.11);
+        transform: translateY(-2px);
+    }
+
+    .sj-file-area.has-file {
+        border-style: solid;
+        border-color: #66d6b8;
+        background: #f0fdf8;
+    }
+
+    .sj-file-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #1677ff, #00b98c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 900;
+        box-shadow: 0 12px 26px rgba(22, 119, 255, 0.2);
+    }
+
+    .sj-file-meta {
+        min-width: 0;
+    }
+
+    .sj-file-name {
+        color: #324155;
+        font-size: 14px;
+        font-weight: 800;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sj-file-area.has-file .sj-file-name {
+        color: #065f46;
+    }
+
+    .sj-file-hint {
+        margin-top: 4px;
+        color: #7b8ba2;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .sj-file-badge {
+        color: #047857;
+        background: #d8f7ee;
+        border: 1px solid #9ce5cf;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .sj-file-input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .sj-btn {
+        width: 100%;
+        margin-top: 8px;
+        padding: 16px;
+        border: none;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #1677ff 0%, #0a70d8 52%, #00b98c 100%);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+        box-shadow: 0 18px 36px rgba(22, 119, 255, 0.28);
+    }
+
+    .sj-btn:hover {
+        filter: brightness(1.05);
+        transform: translateY(-2px);
+        box-shadow: 0 22px 42px rgba(22, 119, 255, 0.36);
+    }
+
+    .sj-footer {
+        margin-top: 18px;
+        color: #718096;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .sj-error {
+        margin-top: 8px;
+        color: #dc2626;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    input[type="hidden"] {
+        display: none;
+    }
+
+    @media (max-width: 900px) {
+        .sj-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .sj-info,
+        .sj-panel {
+            padding: 30px;
+        }
+
+        .sj-info h1 {
+            font-size: 32px;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .sj-page {
+            padding: 24px 12px;
+        }
+
+        .sj-panel-head {
+            flex-direction: column;
+        }
+
+        .sj-format {
+            white-space: normal;
+        }
+
+        .sj-file-area {
+            grid-template-columns: auto 1fr;
+        }
+
+        .sj-file-badge {
+            grid-column: 1 / -1;
+            justify-self: start;
+        }
+    }
+</style>
+
+<div class="sj-page">
+    <div class="sj-shell">
+        <aside class="sj-info">
+            <div class="sj-logo-card">
+                <img src="{% static 'images/logo-DDPL.svg' %}" alt="Company Logo">
+            </div>
+            <div class="sj-kicker">Vector Analysis</div>
+            <h1>{% if prefilled_file %}Spatial Join Workspace{% else %}New Footprint Detection{% endif %}</h1>
+            <p>{% if prefilled_file %}Combine attributes from your change shapefile with the old boundary layer and generate a joined GIS result.{% else %}Compare old and new building footprint layers, then export only newly built footprint polygons.{% endif %}</p>
+
+            <div class="sj-info-list">
+                <div class="sj-info-item">
+                    <span class="sj-info-dot">01</span>
+                    <span>{% if prefilled_file %}Upload the change shapefile{% else %}Upload the old footprint layer{% endif %}</span>
+                </div>
+                <div class="sj-info-item">
+                    <span class="sj-info-dot">02</span>
+                    <span>{% if prefilled_file %}Add the old reference shapefile{% else %}Upload the new footprint layer{% endif %}</span>
+                </div>
+                <div class="sj-info-item">
+                    <span class="sj-info-dot">03</span>
+                    <span>{% if prefilled_file %}Run join and download output{% else %}Download only new building polygons{% endif %}</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="sj-panel">
+            <div class="sj-panel-head">
+                <div>
+                    <h2 class="sj-title">{% if prefilled_file %}Spatial Join Tool{% else %}Footprint Change Tool{% endif %}</h2>
+                    <div class="sj-subtitle">{% if prefilled_file %}Vector, shapefile and GIS processing{% else %}Old footprint vs new footprint comparison{% endif %}</div>
+                </div>
+                <div class="sj-format">.shp .zip .geojson</div>
+            </div>
+
+            {% if prefilled_file %}
+            <div class="sj-badge">
+                <span class="sj-badge-dot"></span>
+                <span class="sj-badge-text">{{ file_name }}</span>
+                <span class="sj-badge-label">Auto loaded</span>
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" id="sjForm">
+                {% csrf_token %}
+
+                <div class="sj-field">
+                    <label class="sj-label">
+                        <span class="sj-label-dot"></span>
+                        {% if prefilled_file %}Change Shapefile{% else %}New Footprint Shapefile{% endif %}
+                    </label>
+                    <div class="sj-file-area {% if prefilled_file %}has-file{% endif %}" id="changeArea">
+                        <div class="sj-file-icon">C</div>
+                        <div class="sj-file-meta">
+                            <div class="sj-file-name" id="changeName">{% if prefilled_file %}{{ file_name }}{% else %}Select new footprint .zip or .geojson{% endif %}</div>
+                            <div class="sj-file-hint">{% if prefilled_file %}Loaded from change detection{% else %}Click to browse{% endif %}</div>
+                        </div>
+                        {% if prefilled_file %}
+                            <span class="sj-file-badge">Ready</span>
+                            <input type="hidden" name="prefilled_file" value="{{ prefilled_file }}">
+                        {% else %}
+                            <span class="sj-file-badge">Browse</span>
+                            <input type="file" name="change_zip" class="sj-file-input" id="changeFile" accept=".zip,.geojson">
+                        {% endif %}
+                    </div>
+                    {% if prefilled_error %}
+                    <div class="sj-error">{{ prefilled_error }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="sj-field">
+                    <label class="sj-label">
+                        <span class="sj-label-dot" style="background:#00b98c;"></span>
+                        Old Footprint Shapefile
+                    </label>
+                    <div class="sj-file-area" id="mainArea">
+                        <div class="sj-file-icon">O</div>
+                        <div class="sj-file-meta">
+                            <div class="sj-file-name" id="mainName">Select old footprint .zip or .geojson</div>
+                            <div class="sj-file-hint">Click to browse</div>
+                        </div>
+                        <span class="sj-file-badge">Browse</span>
+                        <input type="file" name="main_zip" class="sj-file-input" id="mainFile" accept=".zip,.geojson">
+                    </div>
+                </div>
+
+                <button type="submit" class="sj-btn">{% if prefilled_file %}Run Spatial Join{% else %}Detect New Buildings{% endif %}</button>
+            </form>
+
+            <div class="sj-footer">Upload shapefile as .zip, or use .geojson directly</div>
+        </main>
+    </div>
+</div>
+
+<script>
+    function setupFile(inputId, nameId, areaId) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+
+        input.addEventListener('change', function () {
+            var area = document.getElementById(areaId);
+            var nameEl = document.getElementById(nameId);
+            var badge = area.querySelector('.sj-file-badge');
+
+            if (this.files && this.files[0]) {
+                nameEl.textContent = this.files[0].name;
+                area.classList.add('has-file');
+                if (badge) {
+                    badge.textContent = 'Ready';
+                }
+            }
+        });
+    }
+
+    setupFile('mainFile', 'mainName', 'mainArea');
+    setupFile('changeFile', 'changeName', 'changeArea');
+</script>
+
+{% endblock %}
